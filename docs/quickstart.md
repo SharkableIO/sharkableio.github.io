@@ -1,33 +1,39 @@
-add package from nuget
+Add the NuGet package (.NET 10+):
+
 ```bash
-dotnet add package Sharkable --version 0.0.24
-```
-or  using package reference
-```xml
-<PackageReference Include="Sharkable" Version="0.0.24" />
-```
-add using in your project
-```csharp
-using Sharkable
+dotnet add package Sharkable --version 0.1.0
 ```
 
-add Sharkable services(normal mode)
-```csharp 
+Or using package reference:
+
+```xml
+<PackageReference Include="Sharkable" Version="0.1.0" />
+```
+
+Add the using directive:
+
+```csharp
+using Sharkable;
+```
+
+Add Sharkable services (normal mode):
+
+```csharp
 builder.Services.AddShark();
 ```
 
-add Sharkable services(aot mode) \
-(for aot users please specify assemblies by youself and avoid code trim)
+Add Sharkable services (AOT mode):
+
 ```csharp
-build.Services.AddShark([typeof(Program).Assembly]);
+// For AOT, specify assemblies explicitly to avoid code trim
+builder.Services.AddShark([typeof(Program).Assembly]);
 ```
 
-add use for application
+Wire up the middleware:
+
 ```csharp
 var app = builder.Build();
-
-//add this line
 app.UseShark();
 ```
 
-there you go, enjoy the freedom of Sharkable!
+That's it — endpoints are discovered, DI is wired, OpenAPI/Scalar is ready.

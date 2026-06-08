@@ -1,46 +1,39 @@
-从nuget添加包
+从 NuGet 添加包（需要 .NET 10+）：
 
 ```bash
-dotnet add package Sharkable --version 0.0.24
-
+dotnet add package Sharkable --version 0.1.0
 ```
 
-或使用包引用
+或使用包引用：
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.0.24" />
+<PackageReference Include="Sharkable" Version="0.1.0" />
 ```
 
-添加在您的项目中
+在项目中添加引用：
 
 ```csharp
-using Sharkable
-
+using Sharkable;
 ```
 
-添加Sharkable服务 (正常模式)
+添加 Sharkable 服务（正常模式）：
 
 ```csharp
 builder.Services.AddShark();
-
 ```
 
-添加Sharkable服务 (aot模式)  
-(对于aot用户，请自行指定程序集并避免代码修剪)
+添加 Sharkable 服务（AOT 模式）：
 
 ```csharp
-build.Services.AddShark([typeof(Program).Assembly]);
-
+// AOT 用户请自行指定程序集并避免代码修剪
+builder.Services.AddShark([typeof(Program).Assembly]);
 ```
 
-添加应用程序的使用
+添加中间件：
 
 ```csharp
 var app = builder.Build();
-
-//add this line
 app.UseShark();
-
 ```
 
-好了，开始享受Sharkable吧!
+好了，端点已自动发现、依赖注入已配置、OpenAPI/Scalar 已就绪。

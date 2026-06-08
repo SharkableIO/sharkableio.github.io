@@ -3,3 +3,4 @@
 * [Exception Handler](exception-handler.md)
 * [Unified Result](unified-result.md)
 * [Request Validation](request-validation.md)
+* [Endpoint Grouping & Tags](endpoint-grouping.md)
