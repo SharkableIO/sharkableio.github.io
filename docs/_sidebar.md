@@ -6,3 +6,4 @@
 * [Endpoint Grouping & Tags](endpoint-grouping.md)
 * [API Versioning](api-versioning.md)
 * [Built-in Middleware](builtin-middleware.md)
+* [Audit Trail](audit-trail.md)
