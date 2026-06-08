@@ -5,3 +5,4 @@
 * [Request Validation](request-validation.md)
 * [Endpoint Grouping & Tags](endpoint-grouping.md)
 * [API Versioning](api-versioning.md)
+* [Built-in Middleware](builtin-middleware.md)
