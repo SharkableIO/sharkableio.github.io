@@ -7,3 +7,4 @@
 * [API 版本控制](zh-cn/api-versioning.md)
 * [内置中间件](zh-cn/builtin-middleware.md)
 * [请求日志](zh-cn/audit-trail.md)
+* [幂等中间件](zh-cn/idempotency.md)
