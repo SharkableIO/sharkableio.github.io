@@ -8,3 +8,4 @@
 * [内置中间件](zh-cn/builtin-middleware.md)
 * [请求日志](zh-cn/audit-trail.md)
 * [幂等中间件](zh-cn/idempotency.md)
+* [日志脱敏](zh-cn/redacting-formatter.md)
