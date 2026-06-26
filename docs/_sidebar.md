@@ -8,3 +8,4 @@
 * [Built-in Middleware](builtin-middleware.md)
 * [Audit Trail](audit-trail.md)
 * [Idempotency](idempotency.md)
+* [Redacting Formatter](redacting-formatter.md)
