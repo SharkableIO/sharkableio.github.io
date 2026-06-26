@@ -9,3 +9,4 @@
 * [Audit Trail](audit-trail.md)
 * [Idempotency](idempotency.md)
 * [Redacting Formatter](redacting-formatter.md)
+* [Multi-Tenant](multi-tenant.md)

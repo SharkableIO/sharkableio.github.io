@@ -9,3 +9,4 @@
 * [请求日志](zh-cn/audit-trail.md)
 * [幂等中间件](zh-cn/idempotency.md)
 * [日志脱敏](zh-cn/redacting-formatter.md)
+* [多租户](zh-cn/multi-tenant.md)
