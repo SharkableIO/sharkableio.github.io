@@ -184,35 +184,43 @@
       user-select: none;
       display: flex;
       align-items: center;
+      justify-content: center;
       gap: 8px;
-      padding: 16px 24px 8px 28px;
+      padding: 16px 16px 8px 16px;
       margin-top: 8px;
       border-top: 1px solid var(--sidebar-border);
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: .2px;
-      color: var(--text);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      color: var(--text-muted);
       transition: color .15s;
     }
     .sidebar-group:first-child { margin-top: 0; border-top: none; }
     .sidebar-group:hover { color: var(--primary); }
 
     .sidebar-group .sidebar-icon {
-      font-size: 10px;
+      font-size: 8px;
       flex-shrink: 0;
       color: var(--text-muted);
       transition: transform .2s;
       line-height: 1;
+      opacity: .6;
     }
+    .sidebar-group:hover .sidebar-icon { opacity: 1; color: var(--primary); }
+
     .sidebar-group .sidebar-group-dot {
-      width: 6px;
-      height: 6px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: var(--text-muted);
       flex-shrink: 0;
-      transition: background .15s;
+      transition: background .15s, transform .15s;
     }
-    .sidebar-group:hover .sidebar-group-dot { background: var(--primary); }
+    .sidebar-group:hover .sidebar-group-dot {
+      background: var(--primary);
+      transform: scale(1.4);
+    }
 
     /* Subnav items */
     .sidebar-subnav {
@@ -223,7 +231,7 @@
     }
     .sidebar-subnav.collapsed { max-height: 0; }
     .sidebar-subnav a {
-      padding-left: 52px;
+      padding-left: 40px;
       font-size: 13.5px;
       border-radius: 12px;
       margin: 2px 12px;
