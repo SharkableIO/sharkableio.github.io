@@ -91,29 +91,24 @@
 
     .app-bar .spacer { flex: 1; }
 
-    /* Lang switcher — fixed at viewport level, outside AppBar to avoid docsify conflicts */
-    .lang-switch {
-      position: fixed;
-      top: 12px;
-      right: 16px;
-      z-index: 600;
-      display: flex;
-      gap: 2px;
-    }
-    .lang-switch a {
-      display: inline-block;
+    .app-bar .lang-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 32px;
+      padding: 0 12px;
       color: var(--text-muted);
       font-size: 12px;
       font-weight: 600;
-      padding: 4px 12px;
       border-radius: 16px;
       transition: all .2s;
       text-decoration: none;
       letter-spacing: .3px;
+      flex-shrink: 0;
     }
-    .lang-switch a:hover { color: var(--primary); background: var(--primary-bg); }
-    .lang-switch a.active {
-      color: #fff;
+    .app-bar .lang-btn:hover { color: var(--primary); background: var(--primary-bg); }
+    .app-bar .lang-btn.active {
+      color: #fff !important;
       background: var(--primary);
     }
 
@@ -165,26 +160,13 @@
     .sidebar-nav a {
       display: flex;
       align-items: center;
-      padding: 8px 20px 8px 24px;
-      margin: 1px 0;
+      padding: 10px 24px 10px 28px;
+      margin: 2px 12px;
       font-size: 14px;
       color: var(--text-secondary);
       text-decoration: none;
-      border-radius: 0 28px 28px 0;
-      margin-right: 16px;
+      border-radius: 12px;
       transition: background .15s, color .15s;
-      position: relative;
-    }
-    .sidebar-nav a::after {
-      content: '';
-      position: absolute;
-      left: 24px;
-      bottom: 0;
-      width: 0;
-      height: 2px;
-      background: var(--primary);
-      border-radius: 1px;
-      transition: width .2s;
     }
     .sidebar-nav a:hover {
       color: var(--primary);
@@ -194,7 +176,6 @@
       color: var(--primary-dark);
       background: var(--primary-bg);
       font-weight: 600;
-      box-shadow: inset 3px 0 0 var(--primary);
     }
 
     /* Group header */
@@ -204,24 +185,23 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 16px 24px 8px 24px;
-      margin-top: 12px;
+      padding: 16px 24px 8px 28px;
+      margin-top: 8px;
       border-top: 1px solid var(--sidebar-border);
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 600;
-      text-transform: none;
-      letter-spacing: .3px;
-      color: var(--text-muted);
+      letter-spacing: .2px;
+      color: var(--text);
       transition: color .15s;
     }
     .sidebar-group:first-child { margin-top: 0; border-top: none; }
     .sidebar-group:hover { color: var(--primary); }
 
     .sidebar-group .sidebar-icon {
-      font-size: 9px;
+      font-size: 10px;
       flex-shrink: 0;
-      transition: transform .2s;
       color: var(--text-muted);
+      transition: transform .2s;
       line-height: 1;
     }
     .sidebar-group .sidebar-group-dot {
@@ -243,12 +223,11 @@
     }
     .sidebar-subnav.collapsed { max-height: 0; }
     .sidebar-subnav a {
-      padding-left: 48px;
+      padding-left: 52px;
       font-size: 13.5px;
-      border-radius: 0 28px 28px 0;
-      margin-right: 16px;
+      border-radius: 12px;
+      margin: 2px 12px;
     }
-    .sidebar-subnav a::after { left: 48px; }
 
     /* === Content === */
     .content {
@@ -393,8 +372,12 @@
         padding: 24px 20px;
       }
       .sidebar-nav a {
-        margin-right: 0;
-        border-radius: 0;
+        margin: 2px 4px;
+        border-radius: 8px;
+      }
+      .sidebar-subnav a {
+        margin: 2px 4px;
+        border-radius: 8px;
       }
     }
   </style>
@@ -409,11 +392,9 @@
       <span>Sharkable</span>
     </a>
     <span class="spacer"></span>
+    <a id="lang-en" class="lang-btn" href="#">EN</a>
+    <a id="lang-zh" class="lang-btn" href="#">简体中文</a>
   </header>
-  <nav class="lang-switch">
-    <a id="lang-en" href="#">EN</a>
-    <a id="lang-zh" href="#">简体中文</a>
-  </nav>
   <div id="app"></div>
   <script>
     window.$docsify = {
