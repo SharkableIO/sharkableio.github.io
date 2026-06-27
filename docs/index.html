@@ -13,15 +13,13 @@
       --primary-light: #0d8a93;
       --primary-dark: #064e52;
       --primary-bg: #e8f4f5;
-      --primary-ghost: #f0f8f9;
-      --accent: #e85d2c;
-      --accent-light: #fdf0ea;
       --text: #1e293b;
       --text-secondary: #475569;
       --text-muted: #94a3b8;
-      --sidebar-bg: #f8fafc;
+      --sidebar-bg: #fafbfc;
       --sidebar-border: #e2e8f0;
-      --sidebar-width: 300px;
+      --appbar-height: 56px;
+      --sidebar-width: 280px;
       --content-max-width: 860px;
       --code-bg: #f1f4f8;
       --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', 'PingFang SC', sans-serif;
@@ -34,85 +32,148 @@
       font-family: var(--font);
       color: var(--text);
       line-height: 1.7;
+      margin: 0;
+      padding: 0;
       -webkit-font-smoothing: antialiased;
+      background: #fff;
     }
 
-    /* === Language Switcher === */
-    .app-nav {
+    /* === AppBar (Material Design) === */
+    .app-bar {
       position: fixed;
-      top: 16px;
-      right: 28px;
-      z-index: 100;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 500;
+      height: var(--appbar-height);
+      background: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
+      gap: 12px;
     }
-    .app-nav a {
+
+    .app-bar .hamburger {
+      width: 40px;
+      height: 40px;
+      border: none;
+      background: transparent;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      color: var(--text-secondary);
+      transition: background .15s;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .app-bar .hamburger:hover { background: rgba(0,0,0,.06); }
+    .app-bar .hamburger:active { background: rgba(0,0,0,.1); }
+
+    .app-bar .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: var(--primary-dark);
+      font-weight: 700;
+      font-size: 17px;
+      flex-shrink: 0;
+    }
+    .app-bar .brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    .app-bar .spacer { flex: 1; }
+
+    .app-bar .lang-switch {
+      display: flex;
+      gap: 2px;
+    }
+    .app-bar .lang-switch a {
       color: var(--text-muted);
       font-size: 12px;
       font-weight: 600;
-      padding: 5px 14px;
-      border-radius: 20px;
+      padding: 4px 12px;
+      border-radius: 16px;
       transition: all .2s;
       text-decoration: none;
       letter-spacing: .3px;
     }
-    .app-nav a:hover { color: var(--primary); background: var(--primary-bg); }
-    .app-nav a.active {
+    .app-bar .lang-switch a:hover { color: var(--primary); background: var(--primary-bg); }
+    .app-bar .lang-switch a.active {
       color: #fff;
       background: var(--primary);
     }
 
+    /* Hide docsify's default elements */
+    .app-nav { display: none !important; }
+    .sidebar-toggle { display: none !important; }
+
     /* === Sidebar === */
     .sidebar {
+      position: fixed;
+      top: var(--appbar-height);
+      left: 0;
+      bottom: 0;
       width: var(--sidebar-width);
       background: var(--sidebar-bg);
       border-right: 1px solid var(--sidebar-border);
-      padding-top: 0;
+      overflow-y: auto;
+      z-index: 200;
+      transition: width .25s ease;
     }
     .sidebar > h1 {
-      padding: 20px 20px 14px;
-      margin: 0;
+      display: none;
+    }
+    .sidebar .search {
+      padding: 12px 16px 8px;
       border-bottom: 1px solid var(--sidebar-border);
     }
-    .sidebar > h1 .app-name-link {
+    .sidebar .search input {
+      width: 100%;
+      border: 1px solid var(--sidebar-border);
+      border-radius: 8px;
+      padding: 7px 12px;
+      font-size: 13px;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .sidebar .search input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(10,110,117,.1);
+      outline: none;
+    }
+
+    .sidebar-nav {
+      padding: 4px 0 24px;
+    }
+    .sidebar-nav li { margin: 0; list-style: none; }
+    .sidebar-nav a {
       display: flex;
       align-items: center;
-      gap: 10px;
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--primary-dark) !important;
-      text-decoration: none;
-    }
-    .sidebar > h1 img {
-      width: 36px;
-      height: 36px;
-      border-radius: 6px;
-      vertical-align: middle;
-    }
-    .sidebar-nav {
-      padding: 4px 0 48px;
-    }
-    .sidebar-nav li {
-      margin: 0;
-      list-style: none;
-    }
-    .sidebar-nav a {
-      display: block;
-      padding: 6px 24px 6px 28px;
+      gap: 8px;
+      padding: 7px 24px 7px 20px;
       font-size: 13.5px;
       color: var(--text-secondary);
-      border-left: 3px solid transparent;
-      transition: all .15s;
       text-decoration: none;
+      border-radius: 0 20px 20px 0;
+      margin-right: 12px;
+      transition: all .12s;
     }
     .sidebar-nav a:hover {
       color: var(--primary);
       background: #eef2f6;
-      border-left-color: var(--primary-light);
     }
     .sidebar-nav a.active {
       color: var(--primary);
-      border-left-color: var(--primary);
-      font-weight: 600;
       background: var(--primary-bg);
+      font-weight: 600;
     }
 
     /* Group header */
@@ -122,7 +183,7 @@
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 13px 24px 5px 20px;
+      padding: 14px 24px 6px 16px;
       margin-top: 8px;
       font-size: 11px;
       font-weight: 700;
@@ -134,7 +195,7 @@
     .sidebar-group:hover { color: var(--primary); }
     .sidebar-group .sidebar-icon {
       font-size: 8px;
-      width: 14px;
+      width: 16px;
       flex-shrink: 0;
       transition: transform .2s;
       color: var(--text-muted);
@@ -160,55 +221,22 @@
     }
     .sidebar-subnav.collapsed { max-height: 0; }
     .sidebar-subnav a {
-      padding-left: 44px;
+      padding-left: 40px;
       font-size: 13px;
-      position: relative;
-    }
-    .sidebar-subnav a::before {
-      content: '';
-      position: absolute;
-      left: 32px;
-      top: 50%;
-      width: 4px;
-      height: 4px;
-      border-radius: 50%;
-      background: var(--sidebar-border);
-      transform: translateY(-50%);
-      transition: background .15s;
-    }
-    .sidebar-subnav a:hover::before,
-    .sidebar-subnav a.active::before {
-      background: var(--primary-light);
-    }
-
-    /* Search */
-    .sidebar .search {
-      padding: 10px 16px 6px;
-      border-bottom: 1px solid var(--sidebar-border);
-    }
-    .sidebar .search input {
-      width: 100%;
-      border: 1px solid var(--sidebar-border);
-      border-radius: 8px;
-      padding: 7px 12px;
-      font-size: 13px;
-      background: #fff;
-      transition: border-color .2s, box-shadow .2s;
-    }
-    .sidebar .search input:focus {
-      border-color: var(--primary-light);
-      box-shadow: 0 0 0 3px rgba(10,110,117,.1);
-      outline: none;
     }
 
     /* === Content === */
     .content {
-      left: var(--sidebar-width);
-      padding-top: 0;
+      position: relative;
+      margin-top: var(--appbar-height);
+      margin-left: var(--sidebar-width);
+      transition: margin-left .25s ease;
+      min-height: calc(100vh - var(--appbar-height));
+      background: #fff;
     }
     .markdown-section {
       max-width: var(--content-max-width);
-      padding: 48px 64px 80px;
+      padding: 40px 64px 80px;
     }
     .markdown-section h1 {
       font-size: 2.1em;
@@ -227,7 +255,7 @@
       border-bottom: 1px solid var(--sidebar-border);
     }
     .markdown-section h3 {
-      font-size: 1.1em;
+      font-size: 1.15em;
       font-weight: 600;
       color: var(--text);
       margin-top: 28px;
@@ -293,7 +321,6 @@
     .markdown-section ul, .markdown-section ol { padding-left: 24px; }
     .markdown-section li { margin: 6px 0; }
 
-    /* Copy button */
     .docsify-copy-code-button {
       background: var(--primary) !important;
       border-radius: 6px !important;
@@ -301,78 +328,25 @@
       padding: 4px 10px !important;
     }
 
-    /* === Hide docsify default toggle (we use our own) === */
-    .sidebar-toggle {
-      display: none !important;
-    }
-
-    /* === Custom Hamburger Toggle === */
-    #sidebarToggle {
-      display: flex !important;
-      align-items: center;
-      justify-content: center;
-      position: fixed;
-      top: 12px;
-      left: 12px;
-      z-index: 300;
-      width: 34px;
-      height: 34px;
-      border: none;
-      background: #fff;
-      border-radius: 8px;
-      cursor: pointer;
-      font-size: 18px;
-      line-height: 1;
-      color: var(--text-secondary);
-      box-shadow: 0 1px 3px rgba(0,0,0,.1);
-      transition: all .2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-    #sidebarToggle:hover {
-      color: var(--primary);
-      box-shadow: 0 2px 8px rgba(0,0,0,.14);
-    }
-    #sidebarToggle:active { transform: scale(.92); }
-    #sidebarToggle .icon-close { display: none; }
-    #sidebarToggle.open .icon-hamburger { display: none; }
-    #sidebarToggle.open .icon-close { display: inline; }
-
-    /* Desktop: subtle toggle */
-    @media screen and (min-width: 769px) {
-      #sidebarToggle {
-        background: transparent;
-        box-shadow: none;
-        opacity: .4;
-      }
-      #sidebarToggle:hover { opacity: 1; background: var(--sidebar-bg); }
-    }
-
-    /* Desktop: sidebar collapse */
-    body.sidebar-collapsed {
-      --sidebar-width: 0px;
-    }
+    /* === Desktop sidebar collapse === */
     body.sidebar-collapsed .sidebar {
+      width: 0;
       overflow: hidden;
     }
-
-    /* Sidebar + content transitions */
-    .sidebar {
-      transition: width .3s ease;
-    }
-    .content {
-      transition: left .3s ease;
+    body.sidebar-collapsed .content {
+      margin-left: 0;
     }
 
-    /* Backdrop */
+    /* === Backdrop (mobile) === */
     .sidebar-backdrop {
       display: none;
       position: fixed;
       inset: 0;
+      top: var(--appbar-height);
       background: rgba(0,0,0,.35);
-      z-index: 100;
+      z-index: 299;
       opacity: 0;
       transition: opacity .3s ease;
-      -webkit-tap-highlight-color: transparent;
     }
     .sidebar-backdrop.visible {
       display: block !important;
@@ -381,50 +355,54 @@
 
     /* === Mobile === */
     @media screen and (max-width: 768px) {
-      #sidebarToggle {
-        top: 10px;
-        left: 10px;
+      .app-bar {
+        padding: 0 8px;
       }
 
       .sidebar {
-        position: fixed !important;
-        top: 0 !important;
-        left: 0 !important;
-        bottom: 0 !important;
-        width: 280px !important;
+        position: fixed;
+        top: var(--appbar-height);
+        bottom: 0;
+        width: 280px;
         max-width: 85vw;
-        z-index: 200;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        border-right: 1px solid var(--sidebar-border);
-        transition: left .3s ease;
+        z-index: 300;
+        transition: left .25s ease;
         box-shadow: none;
+        left: -300px;
       }
-      /* closed: off-screen left */
-      .sidebar:not(.open) {
-        left: -300px !important;
-      }
-      /* open: slide in */
       body.sidebar-open .sidebar {
-        left: 0 !important;
+        left: 0;
         box-shadow: 4px 0 20px rgba(0,0,0,.12);
       }
 
-      .content { left: 0 !important; }
-      .markdown-section { padding: 54px 20px 24px; }
-      .app-nav { right: 14px; top: 10px; }
+      .content {
+        margin-left: 0;
+      }
+      .markdown-section {
+        padding: 24px 20px;
+      }
+      .sidebar-nav a {
+        margin-right: 0;
+        border-radius: 0;
+      }
     }
   </style>
 </head>
 <body>
-  <nav class="app-nav">
-    <a id="lang-en" href="#">EN</a>
-    <a id="lang-zh" href="#">简体中文</a>
-  </nav>
-  <button class="sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
-    <span class="icon-hamburger">☰</span>
-    <span class="icon-close">✕</span>
-  </button>
+  <header class="app-bar">
+    <button class="hamburger" id="sidebarToggle" aria-label="Toggle sidebar">
+      <span class="icon-hamburger">☰</span>
+    </button>
+    <a class="brand" href="#/">
+      <img src="./logo.jpg" alt="Sharkable">
+      <span>Sharkable</span>
+    </a>
+    <span class="spacer"></span>
+    <nav class="lang-switch">
+      <a id="lang-en" href="#">EN</a>
+      <a id="lang-zh" href="#">简体中文</a>
+    </nav>
+  </header>
   <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
   <div id="app"></div>
   <script>
@@ -479,7 +457,7 @@
   <script src="//unpkg.com/docsify-copy-code"></script>
   <script>
     (function() {
-      var DEFAULT_EXPANDED = true; // <-- change to false if you want sections collapsed by default
+      var DEFAULT_EXPANDED = true;
 
       function initSidebar() {
         var nav = document.querySelector('.sidebar-nav');
@@ -551,14 +529,12 @@
 
       function openSidebar() {
         body.classList.add('sidebar-open');
-        toggle.classList.add('open');
         backdrop.classList.add('visible');
         if (isMobile()) { document.body.style.overflow = 'hidden'; }
       }
 
       function closeSidebar() {
         body.classList.remove('sidebar-open');
-        toggle.classList.remove('open');
         backdrop.classList.remove('visible');
         document.body.style.overflow = '';
       }
@@ -578,18 +554,15 @@
       toggle.addEventListener('click', toggleSidebar);
       backdrop.addEventListener('click', closeSidebar);
 
-      // Close sidebar when clicking a nav link (mobile)
       document.addEventListener('click', function(e) {
         var link = e.target.closest('.sidebar-nav a, .sidebar-nav a *');
         if (link && isMobile()) { closeSidebar(); }
       });
 
-      // Close sidebar on Escape
       document.addEventListener('keydown', function(e) {
         if (e.key === 'Escape' && body.classList.contains('sidebar-open')) { closeSidebar(); }
       });
 
-      // Window resize: close on mobile→desktop transition
       window.addEventListener('resize', function() {
         body.classList.remove('sidebar-collapsed');
         if (!isMobile()) {
