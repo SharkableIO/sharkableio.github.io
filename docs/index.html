@@ -115,6 +115,11 @@
     .app-nav { display: none !important; }
     .sidebar-toggle { display: none !important; }
 
+    /* Bring GitHub corner above AppBar */
+    .github-corner {
+      z-index: 600 !important;
+    }
+
     /* === Sidebar === */
     .sidebar {
       position: fixed;
@@ -459,7 +464,17 @@
     (function() {
       var DEFAULT_EXPANDED = true;
 
+      function fixSidebarParent() {
+        // Move sidebar out of #app so z-index works vs backdrop (same stacking context)
+        var sidebar = document.querySelector('.sidebar');
+        var app = document.getElementById('app');
+        if (sidebar && app && sidebar.parentNode === app) {
+          app.parentNode.insertBefore(sidebar, app);
+        }
+      }
+
       function initSidebar() {
+        fixSidebarParent();
         var nav = document.querySelector('.sidebar-nav');
         if (!nav || nav.__shark) return;
         nav.__shark = true;
@@ -508,12 +523,14 @@
         });
       }
 
-      var observer = new MutationObserver(function() {
+      var sidebarObserver = new MutationObserver(function() {
+        fixSidebarParent();
         if (document.querySelector('.sidebar-nav li')) initSidebar();
       });
-      observer.observe(document.body, { childList: true, subtree: true });
+      sidebarObserver.observe(document.body, { childList: true, subtree: true });
 
       function retry(t) { setTimeout(function() {
+        fixSidebarParent();
         if (!document.querySelector('.sidebar-nav') || !document.querySelector('.sidebar-nav').__shark) initSidebar();
       }, t); }
       retry(300); retry(800); retry(1500);
