@@ -259,8 +259,8 @@
 </head>
 <body>
   <nav class="app-nav">
-    <a href="#/">EN</a>
-    <a href="#/zh-cn/">简体中文</a>
+    <a id="lang-en" href="#">EN</a>
+    <a id="lang-zh" href="#">简体中文</a>
   </nav>
   <div id="app"></div>
   <script>
@@ -280,6 +280,37 @@
         pathNamespaces: /^(\/(zh-cn|ru-ru))?(\/(v1|v2))?/,
       },
     }
+  </script>
+  <script>
+    (function() {
+      function switchLang(e) {
+        e.preventDefault();
+        var path = location.hash.replace(/^#\/?/, '') || '';
+        var isZh = !!document.getElementById('lang-zh').classList.contains('active');
+        var newPath;
+        if (isZh) {
+          // Currently ZH → switch to EN: strip /zh-cn/ prefix
+          newPath = path.replace(/^zh-cn\//, '');
+        } else {
+          // Currently EN → switch to ZH: prepend zh-cn/
+          newPath = 'zh-cn/' + path;
+        }
+        newPath = newPath.replace(/\/+$/, '');
+        location.hash = '#/' + newPath;
+      }
+      document.getElementById('lang-en').addEventListener('click', switchLang);
+      document.getElementById('lang-zh').addEventListener('click', switchLang);
+
+      // Highlight active lang on page load
+      function updateLangActive() {
+        var path = location.hash.replace(/^#\/?/, '');
+        var isZh = path.startsWith('zh-cn/') || path === 'zh-cn';
+        document.getElementById('lang-en').classList.toggle('active', !isZh);
+        document.getElementById('lang-zh').classList.toggle('active', isZh);
+      }
+      updateLangActive();
+      window.addEventListener('hashchange', updateLangActive);
+    })();
   </script>
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
