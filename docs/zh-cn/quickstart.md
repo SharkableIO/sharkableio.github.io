@@ -1,13 +1,13 @@
 从 NuGet 添加包（需要 .NET 10+）：
 
 ```bash
-dotnet add package Sharkable --version 0.3.0
+dotnet add package Sharkable --version 0.3.1
 ```
 
 或使用包引用：
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.3.0" />
+<PackageReference Include="Sharkable" Version="0.3.1" />
 ```
 
 在项目中添加引用：
