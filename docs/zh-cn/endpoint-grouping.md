@@ -95,7 +95,9 @@ builder.Services.AddShark(opt =>
 | ToLower | testuser | `api/testuser/...` |
 | UnChanged | TestUser | `api/TestUser/...` |
 
-## 旧风格 `[SharkEndpoint]` 端点
+## 旧风格 `[SharkEndpoint]` 端点（AOT 不兼容）
+
+> ⚠️ 基于属性的端点使用运行时反射，**不**支持 Native AOT 发布。请使用 `ISharkEndpoint` 编写兼容 AOT 的代码。
 
 基于属性的端点也获得 OpenAPI 标签和 OperationId 支持：
 

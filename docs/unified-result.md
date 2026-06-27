@@ -82,6 +82,28 @@ builder.Services.AddShark(opt =>
 
 Now all exception handler responses and auto-wrap results will use `MyResult` format.
 
+> **Important:** When using a custom response format with `EnableAutoWrap`, the OpenAPI document transformer still generates the default `UnifiedResult<T>` schema shape. To make the generated OpenAPI document match your actual response structure, set `WrapSchemaFactory`:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.UnifiedResultFactory = new MyResultFactory();
+    opt.EnableAutoWrap = true;
+    opt.WrapSchemaFactory = (original) => new OpenApiSchema
+    {
+        Type = JsonSchemaType.Object,
+        Properties = new Dictionary<string, IOpenApiSchema>
+        {
+            ["code"] = new OpenApiSchema { Type = JsonSchemaType.Integer },
+            ["info"] = original,
+            ["error"] = new OpenApiSchema { Type = JsonSchemaType.String },
+        },
+    };
+});
+```
+
+This requires `using Microsoft.OpenApi;` in your Program.cs.
+
 ## AOT support
 
 Register your result type with `[JsonSerializable]` for AOT compilation:

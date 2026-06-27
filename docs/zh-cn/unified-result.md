@@ -82,6 +82,28 @@ builder.Services.AddShark(opt =>
 
 此后所有异常处理器和自动包装的响应都会使用 `MyResult` 格式。
 
+> **重要：** 使用自定义响应格式配合 `EnableAutoWrap` 时，OpenAPI 文档转换器仍会按默认的 `UnifiedResult<T>` 结构生成 schema。要让生成的 OpenAPI 文档匹配实际的响应格式，请设置 `WrapSchemaFactory`：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.UnifiedResultFactory = new MyResultFactory();
+    opt.EnableAutoWrap = true;
+    opt.WrapSchemaFactory = (original) => new OpenApiSchema
+    {
+        Type = JsonSchemaType.Object,
+        Properties = new Dictionary<string, IOpenApiSchema>
+        {
+            ["code"] = new OpenApiSchema { Type = JsonSchemaType.Integer },
+            ["info"] = original,
+            ["error"] = new OpenApiSchema { Type = JsonSchemaType.String },
+        },
+    };
+});
+```
+
+这需要在 Program.cs 中添加 `using Microsoft.OpenApi;`。
+
 ## AOT 支持
 
 使用 `[JsonSerializable]` 注册你的结果类型以支持 AOT 编译：
