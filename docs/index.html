@@ -289,14 +289,12 @@
         var isZh = !!document.getElementById('lang-zh').classList.contains('active');
         var newPath;
         if (isZh) {
-          // Currently ZH → switch to EN: strip /zh-cn/ prefix
-          newPath = path.replace(/^zh-cn\//, '');
+          newPath = path.replace(/^zh-cn\/?/, '').replace(/\/+$/, '');
+          location.hash = newPath ? '#/' + newPath : '#/';
         } else {
-          // Currently EN → switch to ZH: prepend zh-cn/
-          newPath = 'zh-cn/' + path;
+          newPath = path.replace(/\/+$/, '');
+          location.hash = newPath ? '#/zh-cn/' + newPath : '#/zh-cn/';
         }
-        newPath = newPath.replace(/\/+$/, '');
-        location.hash = '#/' + newPath;
       }
       document.getElementById('lang-en').addEventListener('click', switchLang);
       document.getElementById('lang-zh').addEventListener('click', switchLang);
