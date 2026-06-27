@@ -2,14 +2,263 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sharkable Document</title>
+  <title>Sharkable — Minimal API Framework for .NET</title>
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
-  <meta name="description" content="Description">
+  <meta name="description" content="Sharkable — A clean, powerful minimal API framework for .NET">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    :root {
+      --primary: #0a6e75;
+      --primary-light: #0d8a93;
+      --primary-dark: #07555a;
+      --primary-bg: #e8f4f5;
+      --accent: #e85d2c;
+      --text: #2c3e50;
+      --text-light: #6b7b8d;
+      --text-muted: #94a3b8;
+      --sidebar-bg: #fafbfc;
+      --sidebar-border: #e2e8f0;
+      --sidebar-width: 300px;
+      --content-max-width: 860px;
+      --code-bg: #f1f4f8;
+      --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans SC', 'PingFang SC', sans-serif;
+      --font-mono: 'SF Mono', 'Fira Code', 'Fira Mono', Menlo, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body { font-family: var(--font); color: var(--text); line-height: 1.7; -webkit-font-smoothing: antialiased; }
+
+    /* === Language Switcher === */
+    .app-nav {
+      position: fixed;
+      top: 16px;
+      right: 28px;
+      z-index: 100;
+    }
+    .app-nav a {
+      color: var(--text-light);
+      font-size: 13px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 20px;
+      transition: all .2s;
+      text-decoration: none;
+    }
+    .app-nav a:hover { color: var(--primary); background: var(--primary-bg); }
+    .app-nav a.active { color: var(--primary); background: var(--primary-bg); }
+
+    /* === Sidebar === */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--sidebar-border);
+      padding-top: 0;
+    }
+    .sidebar > h1 {
+      padding: 24px 24px 16px;
+      margin: 0;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+    .sidebar > h1 .app-name-link {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary-dark) !important;
+    }
+    .sidebar > h1 img {
+      width: 30px;
+      height: 30px;
+      border-radius: 6px;
+      vertical-align: middle;
+    }
+    .sidebar-nav {
+      padding: 8px 0 48px;
+    }
+    .sidebar-nav li { margin: 0; list-style: none; }
+    .sidebar-nav a {
+      display: block;
+      padding: 7px 24px 7px 28px;
+      font-size: 14px;
+      color: var(--text);
+      border-left: 3px solid transparent;
+      transition: all .12s;
+      text-decoration: none;
+    }
+    .sidebar-nav a:hover {
+      color: var(--primary);
+      background: #eef2f6;
+      border-left-color: var(--primary-light);
+    }
+    .sidebar-nav a.active {
+      color: var(--primary);
+      border-left-color: var(--primary);
+      font-weight: 600;
+      background: var(--primary-bg);
+    }
+
+    /* Group header */
+    .sidebar-group {
+      cursor: pointer;
+      user-select: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 14px 24px 6px 20px;
+      margin-top: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .9px;
+      color: var(--text-muted);
+      transition: color .15s;
+    }
+    .sidebar-group:hover { color: var(--primary-dark); }
+    .sidebar-group .sidebar-icon {
+      font-size: 9px;
+      width: 14px;
+      flex-shrink: 0;
+      transition: transform .2s;
+      color: var(--text-muted);
+    }
+
+    /* Subnav items */
+    .sidebar-subnav { padding: 0; margin: 0; }
+    .sidebar-subnav a { padding-left: 40px; font-size: 13px; }
+
+    /* Search */
+    .sidebar .search {
+      padding: 12px 16px 8px;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+    .sidebar .search input {
+      width: 100%;
+      border: 1px solid var(--sidebar-border);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 13px;
+      background: #fff;
+      transition: border-color .2s, box-shadow .2s;
+    }
+    .sidebar .search input:focus {
+      border-color: var(--primary-light);
+      box-shadow: 0 0 0 3px rgba(10,110,117,.12);
+      outline: none;
+    }
+
+    /* === Content === */
+    .content {
+      left: var(--sidebar-width);
+      padding-top: 0;
+    }
+    .markdown-section {
+      max-width: var(--content-max-width);
+      padding: 48px 64px 80px;
+    }
+    .markdown-section h1 {
+      font-size: 2.2em;
+      font-weight: 700;
+      color: var(--primary-dark);
+      margin-top: 0;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--primary-bg);
+    }
+    .markdown-section h2 {
+      font-size: 1.5em;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 40px;
+      padding-bottom: 6px;
+      border-bottom: 1px solid var(--sidebar-border);
+    }
+    .markdown-section h3 {
+      font-size: 1.15em;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 28px;
+    }
+    .markdown-section h4 { font-size: 1em; font-weight: 600; color: var(--text); margin-top: 24px; }
+    .markdown-section p { color: var(--text); line-height: 1.8; margin: 14px 0; }
+    .markdown-section a { color: var(--primary); font-weight: 500; }
+    .markdown-section a:hover { text-decoration: underline; }
+    .markdown-section code {
+      font-family: var(--font-mono);
+      background: var(--code-bg);
+      color: #1a365d;
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: .87em;
+    }
+    .markdown-section pre {
+      background: var(--code-bg);
+      border-radius: 8px;
+      padding: 18px 22px;
+      border: 1px solid var(--sidebar-border);
+      overflow-x: auto;
+    }
+    .markdown-section pre code {
+      background: none;
+      padding: 0;
+      color: var(--text);
+      font-size: .85em;
+      line-height: 1.6;
+    }
+    .markdown-section blockquote {
+      border-left: 4px solid var(--primary);
+      background: var(--primary-bg);
+      padding: 12px 22px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+    }
+    .markdown-section blockquote p { margin: 6px 0; }
+    .markdown-section table {
+      border-collapse: separate;
+      border-spacing: 0;
+      width: 100%;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,.06);
+    }
+    .markdown-section th {
+      background: var(--primary);
+      color: #fff;
+      font-weight: 600;
+      padding: 11px 16px;
+      font-size: 13px;
+      text-align: left;
+    }
+    .markdown-section td {
+      padding: 10px 16px;
+      border-bottom: 1px solid var(--sidebar-border);
+      font-size: 14px;
+    }
+    .markdown-section tr:last-child td { border-bottom: none; }
+    .markdown-section tr:nth-child(even) td { background: #f8fafc; }
+    .markdown-section img { max-width: 100%; border-radius: 8px; }
+    .markdown-section ul, .markdown-section ol { padding-left: 24px; }
+    .markdown-section li { margin: 6px 0; }
+
+    /* Copy button */
+    .docsify-copy-code-button {
+      background: var(--primary) !important;
+      border-radius: 6px !important;
+      font-size: 12px !important;
+      padding: 4px 10px !important;
+    }
+
+    /* === Responsive === */
+    @media screen and (max-width: 768px) {
+      .sidebar { width: 100%; }
+      .content { left: 0; }
+      .markdown-section { padding: 24px 20px; }
+    }
+  </style>
 </head>
 <body>
-  <nav>
+  <nav class="app-nav">
     <a href="#/">EN</a>
     <a href="#/zh-cn/">简体中文</a>
   </nav>
@@ -20,60 +269,82 @@
       logo: './logo.jpg',
       repo: 'https://github.com/sharkableio/sharkable',
       loadSidebar: true,
-      search: 'auto', // default
-
-      search: [
-        '/',            // => /README.md
-        '/quickstart',       // => /quickstart.md
-        '/zh-cn/',      // => /zh-cn/README.md
-      ],
-
-      // complete configuration parameters
       search: {
-        maxAge: 86400000, // Expiration time, the default one day
-        paths: [], // or 'auto'
-        placeholder: 'Type to search',
-
-        // Localization
-        placeholder: {
-          '/zh-cn/': '搜索',
-          '/': 'Type to search',
-        },
-
-        noData: 'No Results!',
-
-        // Localization
-        noData: {
-          '/zh-cn/': '找不到结果',
-          '/': 'No Results',
-        },
-
-        // Headline depth, 1 - 6
+        maxAge: 86400000,
+        paths: 'auto',
+        placeholder: { '/zh-cn/': '搜索', '/': 'Type to search' },
+        noData: { '/zh-cn/': '找不到结果', '/': 'No Results' },
         depth: 2,
-
-        hideOtherSidebarContent: false, // whether or not to hide other sidebar content
-
-        // To avoid search index collision
-        // between multiple websites under the same domain
+        hideOtherSidebarContent: false,
         namespace: 'sharkableio.github.io',
-
-        // Use different indexes for path prefixes (namespaces).
-        // NOTE: Only works in 'auto' mode.
-        //
-        // When initialiazing an index, we look for the first path from the sidebar.
-        // If it matches the prefix from the list, we switch to the corresponding index.
-        pathNamespaces: ['/zh-cn', '/ru-ru', '/ru-ru/v1'],
-
-        // You can provide a regexp to match prefixes. In this case,
-        // the matching substring will be used to identify the index
         pathNamespaces: /^(\/(zh-cn|ru-ru))?(\/(v1|v2))?/,
       },
     }
   </script>
-  <!-- Docsify v4 -->
   <script src="//cdn.jsdelivr.net/npm/docsify@4"></script>
   <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/search.min.js"></script>
   <script src="//unpkg.com/prismjs/components/prism-csharp.min.js"></script>
   <script src="//unpkg.com/docsify-copy-code"></script>
+  <script>
+    (function() {
+      function initSidebar() {
+        var nav = document.querySelector('.sidebar-nav');
+        if (!nav || nav.__shark) return;
+        nav.__shark = true;
+
+        var items = Array.from(nav.children).filter(function(el) { return el.tagName === 'LI'; });
+        var groups = [];
+        var current = null;
+
+        items.forEach(function(li) {
+          var strong = li.querySelector(':scope > strong');
+          if (strong && li.childNodes.length < 2) {
+            if (current) groups.push(current);
+            current = { header: li, items: [] };
+          } else if (current) {
+            current.items.push(li);
+          }
+        });
+        if (current) groups.push(current);
+
+        groups.forEach(function(g) {
+          if (g.items.length === 0) return;
+
+          g.header.className = 'sidebar-group';
+          var strong = g.header.querySelector(':scope > strong');
+
+          var icon = document.createElement('span');
+          icon.className = 'sidebar-icon';
+          icon.textContent = '▶';
+          strong.parentNode.insertBefore(icon, strong);
+
+          var subnav = document.createElement('ul');
+          subnav.className = 'sidebar-subnav';
+          subnav.style.display = 'none';
+          g.items.forEach(function(item) { subnav.appendChild(item); });
+          g.header.parentNode.insertBefore(subnav, g.header.nextSibling);
+
+          g.header.addEventListener('click', function(e) {
+            if (e.target.closest('a')) return;
+            var collapsed = subnav.style.display === 'none';
+            subnav.style.display = collapsed ? '' : 'none';
+            icon.textContent = collapsed ? '▼' : '▶';
+          });
+        });
+      }
+
+      // Auto-detect sidebar load via MutationObserver
+      var observer = new MutationObserver(function() {
+        if (document.querySelector('.sidebar-nav li')) initSidebar();
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+
+      // Fallback retries
+      function retry(t) { setTimeout(function() {
+        if (!document.querySelector('.sidebar-nav') || !document.querySelector('.sidebar-nav').__shark) initSidebar();
+      }, t); }
+      retry(300); retry(800); retry(1500);
+    })();
+  </script>
 </body>
 </html>
