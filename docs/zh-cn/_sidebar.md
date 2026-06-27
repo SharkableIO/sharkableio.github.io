@@ -3,7 +3,7 @@
 **入门指南**
 * [快速开始](zh-cn/quickstart.md)
 
-**API 设计与版本控制**
+**OpenAPI**
 * [端点分组与标签](zh-cn/endpoint-grouping.md)
 * [API 版本控制](zh-cn/api-versioning.md)
 * [OpenAPI 元数据特性](zh-cn/openapi-metadata.md)
@@ -17,8 +17,10 @@
 * [请求验证](zh-cn/request-validation.md)
 * [内置中间件](zh-cn/builtin-middleware.md)
 
-**横切关注点**
+**日志与审计**
 * [请求日志](zh-cn/audit-trail.md)
-* [幂等中间件](zh-cn/idempotency.md)
 * [日志脱敏](zh-cn/redacting-formatter.md)
+
+**高级功能**
+* [幂等中间件](zh-cn/idempotency.md)
 * [多租户](zh-cn/multi-tenant.md)

@@ -3,7 +3,7 @@
 **Getting Started**
 * [QuickStart](quickstart.md)
 
-**API Design & Versioning**
+**OpenAPI**
 * [Endpoint Grouping & Tags](endpoint-grouping.md)
 * [API Versioning](api-versioning.md)
 * [OpenAPI Metadata Attributes](openapi-metadata.md)
@@ -17,8 +17,10 @@
 * [Request Validation](request-validation.md)
 * [Built-in Middleware](builtin-middleware.md)
 
-**Cross-Cutting Features**
+**Logging & Auditing**
 * [Audit Trail](audit-trail.md)
-* [Idempotency](idempotency.md)
 * [Redacting Formatter](redacting-formatter.md)
+
+**Advanced Features**
+* [Idempotency](idempotency.md)
 * [Multi-Tenant](multi-tenant.md)
