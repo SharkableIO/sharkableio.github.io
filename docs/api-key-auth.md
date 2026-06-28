@@ -1,22 +1,92 @@
 # API Key Authentication
 
-Sharkable provides built-in API key authentication. Requests must include a valid `X-Api-Key` header.
+Sharkable provides two modes for API key authentication:
 
-## Quick Start
+| Mode | Use case | Setup |
+|------|----------|-------|
+| Static list | Dev / simple scenarios | `opt.ApiKeys = [...]` |
+| Interceptor | Per-client keys, scopes, expiry | `IAuthorizationInterceptor` |
+
+## Quick Start (Static List)
 
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ApiKeys = ["your-secret-key-here"];
+    opt.ApiKeys = ["your-secret-key", "another-key"];
 });
 ```
 
-All endpoints are now protected. Requests without a valid key receive a 401 `Unauthorized`.
+Clients send `X-Api-Key` header. Valid keys pass through; invalid/missing keys return 401.
 
-## Multiple Keys
+## Per-Client Keys with Scopes & Expiry
+
+For production, implement `IAuthorizationInterceptor` to validate keys against your own store (database, Redis, etc.):
 
 ```csharp
-opt.ApiKeys = ["key-alpha", "key-beta", "key-gamma"];
+builder.Services.AddShark(opt =>
+{
+    opt.ApiKeys = null; // disable static list
+    opt.AuthorizationInterceptorFactory = sp => new ApiKeyValidator();
+});
+```
+
+```csharp
+public class ApiKeyValidator : IAuthorizationInterceptor
+{
+    public IResult? Authorize(HttpContext ctx)
+    {
+        ctx.Request.Headers.TryGetValue("X-Api-Key", out var key);
+        if (string.IsNullOrEmpty(key))
+            return Results.Json(new { error = "Missing API key" }, statusCode: 401);
+
+        // Validate against your store
+        var info = _myStore.Get(key);
+        if (info == null)
+            return Results.Json(new { error = "Invalid API key" }, statusCode: 401);
+        if (info.ExpiresAt < DateTimeOffset.UtcNow)
+            return Results.Json(new { error = "API key expired" }, statusCode: 401);
+
+        // Expose client info to downstream endpoints
+        ctx.Items["ApiKeyClient"] = info.Client;
+        ctx.Items["ApiKeyScopes"] = info.Scopes;
+
+        return null; // pass
+    }
+}
+```
+
+### Downstream Usage
+
+Endpoints can read the client info set by the interceptor:
+
+```csharp
+app.MapGet("/orders", (HttpContext ctx) =>
+{
+    var client = ctx.Items["ApiKeyClient"] as string;
+    var scopes = ctx.Items["ApiKeyScopes"] as string[];
+    // scope-based access control
+});
+```
+
+### Combined with JWT
+
+The interceptor handles both API key and JWT in one place:
+
+```csharp
+public IResult? Authorize(HttpContext ctx)
+{
+    // JWT path
+    if (ctx.User.Identity?.IsAuthenticated == true)
+    {
+        var sub = ctx.User.FindFirst("sub")?.Value;
+        ctx.Items["Client"] = sub;
+        return null;
+    }
+
+    // API key path
+    ctx.Request.Headers.TryGetValue("X-Api-Key", out var key);
+    // ... validate key as above
+}
 ```
 
 ## Unified Error Response
@@ -27,20 +97,8 @@ Auth failures return the framework's standard unified result envelope:
 {
   "statusCode": 401,
   "data": null,
-  "errorMessage": "Unauthorized",
+  "errorMessage": "Invalid API key",
   "extra": null,
   "timeStamp": 1750934400000
 }
-```
-
-## Integration with JWT
-
-API key and JWT authentication can coexist. When both are configured, either is accepted as valid authentication:
-
-```csharp
-builder.Services.AddShark(opt =>
-{
-    opt.ApiKeys = ["api-key-here"];
-    opt.ConfigureJwt("https://your-issuer.com", ["your-api"]);
-});
 ```
