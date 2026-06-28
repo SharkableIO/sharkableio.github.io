@@ -22,5 +22,41 @@
   },
   "item.label.Docs": {
     "message": "文档"
+  },
+  "homepage.feature.routing.title": {
+    "message": "基于约定的路由"
+  },
+  "homepage.feature.routing.description": {
+    "message": "<code>ISharkEndpoint</code> → 自动映射到 <code>/api/{group}/{route}</code>。无反射端点发现，AOT 就绪。"
+  },
+  "homepage.feature.aot.title": {
+    "message": "AOT 就绪"
+  },
+  "homepage.feature.aot.description": {
+    "message": "支持 <code>PublishAot=true</code>。原生 AOT 编译，快速启动和精简体积。"
+  },
+  "homepage.feature.middleware.title": {
+    "message": "丰富的中间件"
+  },
+  "homepage.feature.middleware.description": {
+    "message": "审计日志、幂等键、多租户、请求验证、限流、输出缓存——开箱即用。"
+  },
+  "homepage.feature.openapi.title": {
+    "message": "OpenAPI 集成"
+  },
+  "homepage.feature.openapi.description": {
+    "message": "类级元数据特性、API 版本控制、Scalar UI 提供交互式 API 浏览。"
+  },
+  "homepage.feature.error.title": {
+    "message": "统一错误处理"
+  },
+  "homepage.feature.error.description": {
+    "message": "<code>UnifiedResult&lt;T&gt;</code> + 全局异常处理器，API 响应一致。"
+  },
+  "homepage.feature.logging.title": {
+    "message": "结构化日志"
+  },
+  "homepage.feature.logging.description": {
+    "message": "敏感字段脱敏格式化器自动保护，生产级可观测性。"
   }
 }
