@@ -38,7 +38,7 @@ const sidebars = {
       type: 'category',
       label: 'Quality',
       collapsed: true,
-      items: ['route-analyzer'],
+      items: ['route-analyzer', 'distributed-tracing', 'profiler'],
     },
     {
       type: 'category',
