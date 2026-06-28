@@ -1,3 +1,7 @@
+---
+title: API 版本控制
+---
+
 # API 版本控制
 
 Sharkable 通过 `[SharkVersion]` 特性支持 API 版本控制，让你可以在不同的 URL 前缀下同时托管多个 API 版本。

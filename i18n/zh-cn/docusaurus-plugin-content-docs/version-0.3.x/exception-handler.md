@@ -1,3 +1,7 @@
+---
+title: 异常处理器
+---
+
 # 异常处理器 & 自动统一响应
 
 Sharkable 内置了全局异常处理中间件，能将未处理的异常转换为统一的 `UnifiedResult<T>` JSON 响应，同时可选的自动包装过滤器能将端点返回值自动包装为 `UnifiedResult<T>`。

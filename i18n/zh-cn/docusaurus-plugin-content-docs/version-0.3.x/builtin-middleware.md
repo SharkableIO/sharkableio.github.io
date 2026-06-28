@@ -1,3 +1,7 @@
+---
+title: 内置中间件
+---
+
 # 内置中间件
 
 Sharkable 为多个 ASP.NET Core 中间件功能提供了内置集成：

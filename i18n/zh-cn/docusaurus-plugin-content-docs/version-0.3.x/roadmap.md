@@ -1,3 +1,7 @@
+---
+title: 路线图
+---
+
 # 路线图 / Roadmap
 
 候选新功能列表。所有条目约束：**不引入新的第三方 NuGet 包**，仅使用现有 4 个包（FluentValidation / Microsoft.AspNetCore.OpenApi / Scalar.AspNetCore / Microsoft.AspNetCore.Authentication.JwtBearer）+ `Microsoft.AspNetCore.App` 框架引用内置能力。

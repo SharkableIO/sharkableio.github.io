@@ -1,3 +1,7 @@
+---
+title: 日志脱敏
+---
+
 # 日志脱敏 / Redacting Formatter
 
 Sharkable 提供结构化日志字段脱敏功能，自动屏蔽 `ILogger` 输出中的敏感值。与替换或包装 Logger Provider 不同，它在 DI 层面将默认的 `ILogger<T>` 替换为脱敏包装器——无双重输出，无递归。

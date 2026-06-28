@@ -1,3 +1,7 @@
+---
+title: 请求验证
+---
+
 # 请求验证
 
 Sharkable 集成了 FluentValidation，为 `ISharkEndpoint` 端点提供自动请求验证。启用后，传入的参数会与已注册的 `IValidator<T>` 进行匹配验证，无效请求会返回包含 `UnifiedResult` 错误信息的 400 响应。
