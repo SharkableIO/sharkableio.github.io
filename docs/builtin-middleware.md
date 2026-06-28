@@ -1,17 +1,20 @@
 # Built-in Middleware
 
-Sharkable provides built-in integration for several ASP.NET Core middleware features:
+Sharkable provides built-in integration for several ASP.NET Core middleware features, plus its own middleware:
 
-- [Rate Limiting](#rate-limiting)
+- [Rate Limiting (ASP.NET Core)](#rate-limiting-aspnet-core)
+- [Distributed Rate Limiting](rate-limiting)
+- [Graceful Shutdown](graceful-shutdown)
+- [Configuration Validation](config-validation)
 - [Output Caching](#output-caching)
 - [Health Checks](#health-checks)
 - [CORS](#cors)
 - [API Key Authentication](#api-key-authentication)
 - [JWT Bearer Authentication](#jwt-bearer-authentication)
 
-## Rate Limiting
+## Rate Limiting (ASP.NET Core)
 
-Configure rate limiting policies and apply them per-endpoint.
+Configure rate limiting policies and apply them per-endpoint. This uses ASP.NET Core's in-memory `PartitionedRateLimiter`. For distributed rate limiting with Redis, see [Rate Limiting](rate-limiting).
 
 ```csharp
 builder.Services.AddShark(opt =>

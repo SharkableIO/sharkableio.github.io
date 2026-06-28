@@ -80,6 +80,34 @@ Content-Type: application/json
 
 被排除路径的响应**不会**包含 `X-Correlation-Id` 头。
 
+## 异步 / 批量写入
+
+对于高吞吐量端点，启用异步即发即忘日志记录以避免阻塞响应：
+
+```csharp
+opt.ConfigureAuditTrail(a =>
+{
+    a.AsyncWrite = true;
+
+    // 刷新前最多积压的条目数。默认 100。
+    a.BatchSize = 100;
+
+    // 刷新部分批次前的最长等待间隔。默认 5s。
+    a.FlushInterval = TimeSpan.FromSeconds(5);
+
+    // 关闭时自动刷新剩余条目。默认 true。
+    a.EnsureFlushOnShutdown = true;
+});
+```
+
+当 `AsyncWrite` 为 `true` 时：
+- 日志条目写入有界 `Channel<AuditLogEntry>`（容量 4096）
+- 后台处理器批量写入日志
+- 关闭时自动刷新剩余条目
+- Channel 满时丢弃新条目（`DropWrite`）—— 应用永远不会因审计日志而阻塞
+
+当 `AsyncWrite` 为 `false`（默认）时，每个请求通过 `ILogger` 同步写入 —— 即原始行为。
+
 ## AOT 兼容
 
 审计日志中间件完全 AOT 兼容。它使用 `ILogger<T>` 进行结构化日志记录，不对请求/响应体进行任何反射操作。

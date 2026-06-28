@@ -76,6 +76,34 @@ Content-Type: application/json
 
 Requests to excluded paths do **not** get the `X-Correlation-Id` header.
 
+## Async / Batch Write
+
+For high-throughput endpoints, enable async fire-and-forget logging to avoid blocking the response:
+
+```csharp
+opt.ConfigureAuditTrail(a =>
+{
+    a.AsyncWrite = true;
+
+    // Max entries to batch before flushing. Default: 100.
+    a.BatchSize = 100;
+
+    // Max interval before flushing a partial batch. Default: 5s.
+    a.FlushInterval = TimeSpan.FromSeconds(5);
+
+    // Automatically flush remaining entries on shutdown. Default: true.
+    a.EnsureFlushOnShutdown = true;
+});
+```
+
+When `AsyncWrite` is `true`:
+- Log entries are written to a bounded `Channel<AuditLogEntry>` (capacity 4096)
+- A background processor batches and writes entries in bulk
+- On shutdown, remaining entries are flushed automatically
+- If the channel is full, new entries are dropped (`DropWrite`) — the application never blocks on audit logging
+
+When `AsyncWrite` is `false` (default), each request is logged synchronously via `ILogger` — the original behavior.
+
 ## AOT Compatibility
 
 The audit trail middleware is fully AOT-compatible. It uses `ILogger<T>` for structured logging with zero reflection on request/response bodies.

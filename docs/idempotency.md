@@ -115,12 +115,55 @@ All idempotency errors follow the framework's standard `UnifiedResult<T>` envelo
 
 Clients can route on `statusCode` and inspect the bracketed prefix in `errorMessage` to distinguish the failure mode.
 
+## Distributed Store
+
+The `IIdempotencyStore` interface enables Redis, PostgreSQL, or any KV store as the idempotency backend.
+
+### Built-in: MemoryIdempotencyStore
+
+The default `MemoryIdempotencyStore` uses `IMemoryCache` and is suitable for single-instance deployments.
+
+### Custom Store via Factory
+
+Plug in a Redis-backed store inside the `AddShark()` callback:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.IdempotencyStoreFactory = sp =>
+    {
+        var multiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
+        return new RedisIdempotencyStore(multiplexer);
+    };
+    opt.EnableIdempotency = true;
+});
+```
+
+### Custom Store via Plugin (NuGet)
+
+Register your implementation **before** `AddShark()`. The `TryAddSingleton` pattern ensures your implementation takes precedence:
+
+```csharp
+services.AddSingleton<IIdempotencyStore, MyCustomStore>();
+builder.Services.AddShark(opt =>
+{
+    opt.EnableIdempotency = true;
+});
+```
+
+### Priority
+
+| Method | Priority |
+|---|---|
+| `opt.IdempotencyStoreFactory` | Highest (explicit opt-in) |
+| `services.AddSingleton<IIdempotencyStore, T>()` before `AddShark` | Medium (plugin) |
+| Default `MemoryIdempotencyStore` | Lowest (fallback) |
+
 ## AOT Support
 
 The middleware is AOT-safe. No reflection, no `Create()` factories on user types, no `dynamic`. `Sharkable.AotSample` exercises the feature end-to-end at build time.
 
 ## Limitations
 
-- **Single-instance only.** The in-memory store is per-process. Multi-instance deployments must plug in a distributed `IIdempotencyStore` implementation (Redis etc.) — not provided in v1.
 - **No streaming responses.** Responses > 1 MiB are rejected with 500 and not cached.
 - **Request body fingerprinting.** The fingerprint over the request body requires the body to be readable when the middleware runs. Endpoints that have already consumed the body (e.g., `[FromBody]` model binding without `EnableBuffering` upstream) will produce fingerprints over empty bytes, defeating the 422 check.

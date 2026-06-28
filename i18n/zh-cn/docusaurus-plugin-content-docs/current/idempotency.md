@@ -118,12 +118,55 @@ const handlePay = () => {
 
 客户端可以按 `statusCode` 路由，并检查 `errorMessage` 里的方括号前缀来区分具体的失败模式。
 
+## 分布式存储
+
+`IIdempotencyStore` 接口支持 Redis、PostgreSQL 等 KV 存储作为幂等性后端。
+
+### 默认：MemoryIdempotencyStore
+
+`MemoryIdempotencyStore` 基于 `IMemoryCache`，适用于单实例部署。
+
+### 通过工厂自定义存储
+
+在 `AddShark()` 回调中接入 Redis：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.IdempotencyStoreFactory = sp =>
+    {
+        var multiplexer = sp.GetRequiredService<IConnectionMultiplexer>();
+        return new RedisIdempotencyStore(multiplexer);
+    };
+    opt.EnableIdempotency = true;
+});
+```
+
+### 通过 NuGet 插件自定义存储
+
+在 `AddShark()` **之前**注册自定义实现。`TryAddSingleton` 模式确保你的实现优先：
+
+```csharp
+services.AddSingleton<IIdempotencyStore, MyCustomStore>();
+builder.Services.AddShark(opt =>
+{
+    opt.EnableIdempotency = true;
+});
+```
+
+### 优先级
+
+| 方式 | 优先级 |
+|---|---|
+| `opt.IdempotencyStoreFactory` | 最高（显式设置） |
+| `services.AddSingleton<IIdempotencyStore, T>()` 在 `AddShark` 之前 | 中（插件） |
+| 默认 `MemoryIdempotencyStore` | 最低（兜底） |
+
 ## AOT 支持
 
 中间件是 AOT 安全的。无反射、无用户类型上的 `Create()` 工厂调用、无 `dynamic`。`Sharkable.AotSample` 在构建期端到端验证该特性。
 
 ## 已知限制
 
-- **仅支持单实例。** 内存存储是进程级别的。多实例部署需要自行实现分布式的 `IIdempotencyStore`（如 Redis）—— v1 不提供。
 - **不支持流式响应。** 超过 1 MiB 的响应会被 500 拒绝且不缓存。
 - **请求体指纹。** 请求体的指纹计算要求中间件运行时请求体可读。如果端点已经消费过请求体（例如没有上游 `EnableBuffering` 的 `[FromBody]` 模型绑定），指纹会基于空字节计算，422 检查会失效。

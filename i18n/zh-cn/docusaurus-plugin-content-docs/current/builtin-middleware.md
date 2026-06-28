@@ -4,18 +4,21 @@ title: 内置中间件
 
 # 内置中间件
 
-Sharkable 为多个 ASP.NET Core 中间件功能提供了内置集成：
+Sharkable 为多个 ASP.NET Core 中间件功能提供了内置集成，并提供自己的中间件：
 
-- [限流](#限流)
+- [限流 (ASP.NET Core)](#限流-aspnet-core)
+- [分布式限流](rate-limiting)
+- [优雅关闭](graceful-shutdown)
+- [配置校验](config-validation)
 - [输出缓存](#输出缓存)
 - [健康检查](#健康检查)
 - [CORS](#cors)
 - [API 密钥认证](#api-密钥认证)
 - [JWT Bearer 认证](#jwt-bearer-认证)
 
-## 限流
+## 限流 (ASP.NET Core)
 
-配置限流策略并应用到端点。
+配置限流策略并按端点应用。此方式使用 ASP.NET Core 的内存级 `PartitionedRateLimiter`。如需基于 Redis 的分布式限流，参见 [请求限流](rate-limiting)。
 
 ```csharp
 builder.Services.AddShark(opt =>

@@ -32,7 +32,7 @@ const sidebars = {
       type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
-      items: ['request-validation', 'builtin-middleware'],
+      items: ['request-validation', 'builtin-middleware', 'rate-limiting', 'graceful-shutdown', 'config-validation'],
     },
     {
       type: 'category',
