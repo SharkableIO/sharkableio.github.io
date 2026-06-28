@@ -32,7 +32,7 @@ const sidebars = {
       type: 'category',
       label: 'Security',
       collapsed: true,
-      items: ['api-key-auth', 'jwt-auth', 'cors', 'rate-limiting'],
+      items: ['api-key-auth', 'jwt-auth', 'authorization-interceptor', 'cors', 'rate-limiting'],
     },
     {
       type: 'category',
