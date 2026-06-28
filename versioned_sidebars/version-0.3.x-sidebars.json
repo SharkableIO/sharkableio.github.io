@@ -1,0 +1,64 @@
+{
+  "docs": [
+    "intro",
+    {
+      "type": "category",
+      "label": "Getting Started",
+      "collapsed": false,
+      "link": {
+        "type": "generated-index"
+      },
+      "items": [
+        "quickstart"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "OpenAPI",
+      "collapsed": true,
+      "items": [
+        "endpoint-grouping",
+        "api-versioning",
+        "openapi-metadata",
+        "scalar-configuration"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Error Handling",
+      "collapsed": true,
+      "items": [
+        "exception-handler",
+        "unified-result"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Request Pipeline",
+      "collapsed": true,
+      "items": [
+        "request-validation",
+        "builtin-middleware"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Logging & Auditing",
+      "collapsed": true,
+      "items": [
+        "audit-trail",
+        "redacting-formatter"
+      ]
+    },
+    {
+      "type": "category",
+      "label": "Advanced Features",
+      "collapsed": true,
+      "items": [
+        "idempotency",
+        "multi-tenant",
+        "roadmap"
+      ]
+    }
+  ]
+}
