@@ -79,7 +79,17 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-其他自动检查可通过 NuGet 插件添加（如 `Sharkable.AutoCrud.SqlSugar` 添加数据库连接检查）。插件只需在 `AddShark()` 之前将 `IHealthCheck` 实现注册到 DI：
+## NuGet 插件健康检查
+
+插件通过 DI 自动注册健康检查。例如 `Sharkable.Cache.Redis` 提供 `RedisHealthCheck`：
+
+```csharp
+// Sharkable.Cache.Redis 自动注册健康检查
+services.AddSharkableRedis("localhost:6379");
+// Redis 连接状态现在出现在 /healthz 中
+```
+
+插件只需在 `AddShark()` 之前将 `IHealthCheck` 实现注册到 DI：
 
 ```csharp
 // NuGet 插件扩展方法内部：

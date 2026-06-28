@@ -75,7 +75,17 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-Additional auto-checks can be added via NuGet plugins (e.g., `Sharkable.AutoCrud.SqlSugar` adds database connectivity). Plugins simply register their `IHealthCheck` implementations in DI before `AddShark()`:
+## NuGet Plugin Health Checks
+
+Plugins auto-register health checks via DI. For example, `Sharkable.Cache.Redis` provides `RedisHealthCheck`:
+
+```csharp
+// Sharkable.Cache.Redis registers its health check automatically
+services.AddSharkableRedis("localhost:6379");
+// Redis connectivity now appears in /healthz
+```
+
+Plugins simply register their `IHealthCheck` implementations in DI before `AddShark()`:
 
 ```csharp
 // Inside a NuGet plugin extension method:
