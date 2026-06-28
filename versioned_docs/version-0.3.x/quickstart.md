@@ -1,7 +1,7 @@
 Add the NuGet package (.NET 10+):
 
 ```bash
-dotnet add package Sharkable --version 0.4.0
+dotnet add package Sharkable --version 0.3.2
 ```
 
 Or using package reference:

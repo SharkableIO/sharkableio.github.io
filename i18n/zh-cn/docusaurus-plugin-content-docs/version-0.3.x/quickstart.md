@@ -5,7 +5,7 @@ title: 快速开始
 从 NuGet 添加包（需要 .NET 10+）：
 
 ```bash
-dotnet add package Sharkable --version 0.4.0
+dotnet add package Sharkable --version 0.3.2
 ```
 
 或使用包引用：
