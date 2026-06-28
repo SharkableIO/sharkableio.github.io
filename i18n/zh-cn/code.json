@@ -3,13 +3,13 @@
     "message": "基于约定的路由"
   },
   "homepage.feature.routing.description": {
-    "message": "<code>ISharkEndpoint</code> → 自动映射到 <code>/api/{group}/{route}</code>。无反射端点发现，AOT 就绪。"
+    "message": "{endpointClass} → 自动映射到 {apiPath}。无反射端点发现，AOT 就绪。"
   },
   "homepage.feature.aot.title": {
     "message": "AOT 就绪"
   },
   "homepage.feature.aot.description": {
-    "message": "支持 <code>PublishAot=true</code>。原生 AOT 编译，快速启动和精简体积。"
+    "message": "支持 {flag}。原生 AOT 编译，快速启动和精简体积。"
   },
   "homepage.feature.middleware.title": {
     "message": "丰富的中间件"
@@ -27,7 +27,7 @@
     "message": "统一错误处理"
   },
   "homepage.feature.error.description": {
-    "message": "<code>UnifiedResult&lt;T&gt;</code> + 全局异常处理器，API 响应一致。"
+    "message": "{type} + 全局异常处理器，API 响应一致。"
   },
   "homepage.feature.logging.title": {
     "message": "结构化日志"
