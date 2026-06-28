@@ -75,7 +75,15 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-Additional auto-checks can be added via NuGet plugins (e.g., `Sharkable.AutoCrud.SqlSugar` adds database connectivity).
+Additional auto-checks can be added via NuGet plugins (e.g., `Sharkable.AutoCrud.SqlSugar` adds database connectivity). Plugins simply register their `IHealthCheck` implementations in DI before `AddShark()`:
+
+```csharp
+// Inside a NuGet plugin extension method:
+services.TryAddEnumerable(
+    ServiceDescriptor.Singleton<IHealthCheck, SqlSugarHealthCheck>());
+```
+
+`HealthCheckService` auto-discovers all `IHealthCheck` registrations at runtime — no additional hook needed.
 
 ## Status Codes
 

@@ -79,7 +79,15 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-其他自动检查可通过 NuGet 插件添加（如 `Sharkable.AutoCrud.SqlSugar` 添加数据库连接检查）。
+其他自动检查可通过 NuGet 插件添加（如 `Sharkable.AutoCrud.SqlSugar` 添加数据库连接检查）。插件只需在 `AddShark()` 之前将 `IHealthCheck` 实现注册到 DI：
+
+```csharp
+// NuGet 插件扩展方法内部：
+services.TryAddEnumerable(
+    ServiceDescriptor.Singleton<IHealthCheck, SqlSugarHealthCheck>());
+```
+
+`HealthCheckService` 在运行时会自动发现所有 `IHealthCheck` 注册——无需额外钩子。
 
 ## 状态码
 
