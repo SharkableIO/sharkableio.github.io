@@ -45,6 +45,16 @@
     },
     {
       "type": "category",
+      "label": "Quality",
+      "collapsed": true,
+      "items": [
+        "route-analyzer",
+        "distributed-tracing",
+        "profiler"
+      ]
+    },
+    {
+      "type": "category",
       "label": "Request Pipeline",
       "collapsed": true,
       "items": [
@@ -71,6 +81,7 @@
       "items": [
         "idempotency",
         "multi-tenant",
+        "autocrud",
         "roadmap"
       ]
     }
