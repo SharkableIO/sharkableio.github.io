@@ -56,7 +56,7 @@ const sidebars = {
       type: 'category',
       label: 'Advanced Features',
       collapsed: true,
-      items: ['idempotency', 'multi-tenant', 'roadmap'],
+      items: ['idempotency', 'multi-tenant', 'autocrud', 'roadmap'],
     },
   ],
 };
