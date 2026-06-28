@@ -19,7 +19,7 @@ Sharkable 是一个轻量级、支持 AOT 的 .NET 框架，扩展了 ASP.NET Co
 
 ### 快速链接
 
-- [快速开始](zh-cn/quickstart.md) — 5 分钟上手
+- [快速开始](quickstart.md) — 5 分钟上手
 - [GitHub](https://github.com/sharkableio/sharkable) — 源码与 issues
 
 ### 关于作者
