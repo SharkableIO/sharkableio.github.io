@@ -194,4 +194,5 @@ opt.ConfigureRateLimiting(o =>
 - **中等负载**：向 `BasePermitLimit` 靠拢
 - 限流值钳制在 `MinPermitLimit` 和 `MaxPermitLimit` 之间
 
-`X-RateLimit-Limit` 响应头反映当前动态值，而非基准值。<｜end▁of▁thinking｜>Now commit everything — source, roadmap, docs:
+
+`X-RateLimit-Limit` 响应头反映当前动态值，而非基准值。
