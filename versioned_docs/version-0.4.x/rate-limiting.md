@@ -167,6 +167,32 @@ builder.Services.AddShark(opt =>
 app.MapGet("hello", () => "hi").SharkRequireRateLimiting("fixed");
 ```
 
+## Adaptive Rate Limiting
+
+Enable adaptive mode to dynamically adjust the permit limit based on CPU usage and GC pressure:
+
+```csharp
+opt.ConfigureRateLimiting(o =>
+{
+    o.EnableAdaptive = true;
+    o.BasePermitLimit = 100;           // normal target
+    o.MinPermitLimit = 10;            // floor under high load
+    o.MaxPermitLimit = 500;           // ceiling when idle
+    o.AdaptiveCpuHighThreshold = 80;  // reduce permits above this CPU %
+    o.AdaptiveCpuLowThreshold = 40;   // increase permits below this CPU %
+    o.AdaptiveAdjustmentInterval = TimeSpan.FromSeconds(5);  // recheck interval
+});
+```
+
+**How it works:**
+- A background monitor samples process CPU + GC every `AdjustmentInterval`
+- **High load** (CPU > `HighThreshold` or GC > 80%): decrements limit by ~10%
+- **Low load** (CPU < `LowThreshold` and GC < 50%): increments limit by ~10%
+- **Moderate load**: drifts toward `BasePermitLimit`
+- Limit is clamped between `MinPermitLimit` and `MaxPermitLimit`
+
+The `X-RateLimit-Limit` response header reflects the current dynamic limit, not the base.
+
 ## Coexistence
 
 Both `ConfigureRateLimiter()` and `ConfigureRateLimiting()` can be enabled simultaneously. The ASP.NET Core built-in middleware runs first (via `app.UseRateLimiter()`), followed by the Sharkable distributed middleware. Each operates independently.

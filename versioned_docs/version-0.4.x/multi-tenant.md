@@ -94,6 +94,42 @@ opt.ConfigureMultiTenant(cfg =>
 | No `ConfigureMultiTenant` call | Middleware is not wired; no tenant resolution |
 | Multiple resolvers chained | First non-null result wins |
 
+## Data Source Isolation
+
+Route database connections per-tenant via `ITenantDataSource`. Inject it anywhere to get the correct connection string for the current request:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureMultiTenant(cfg =>
+    {
+        cfg.ResolveTenant = ctx => TenantResolver.FromHost(ctx);
+
+        cfg.ConfigureDataSource(o =>
+        {
+            o.ConnectionStringResolver = tenantId =>
+                $"Server=db-{tenantId}.internal;Database=myapp";
+        });
+    });
+});
+
+// In any scoped service:
+public class OrderService
+{
+    private readonly ITenantDataSource _ds;
+    public OrderService(ITenantDataSource ds) => _ds = ds;
+
+    public void Connect()
+    {
+        var connStr = _ds.GetConnectionString(); // auto-resolved per tenant
+    }
+}
+```
+
+The `ITenantDataSource` is a scoped service. It resolves the current tenant from `ITenant`, then maps it to a connection string via `ConnectionStringResolver`. Returns `null` when no tenant is resolved.
+
+NuGet plugins (e.g., `Sharkable.AutoCrud.SqlSugar`) can wire `ITenantDataSource` into their DB client registration so that injected clients automatically point to the correct tenant database — with zero user code changes.
+
 ## AOT Support
 
 Fully AOT-safe. No reflection, no `dynamic`. The middleware resolves tenant via a `Func<HttpContext, string?>` delegate, and `ITenant` / `Tenant` are plain interfaces and classes.

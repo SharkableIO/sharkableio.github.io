@@ -98,6 +98,42 @@ opt.ConfigureMultiTenant(cfg =>
 | 未调用 `ConfigureMultiTenant` | 不会注册中间件，不做租户解析 |
 | 多个解析器链式组合 | 第一个非 null 结果生效 |
 
+## 数据源隔离
+
+通过 `ITenantDataSource` 按租户路由数据库连接。在任意位置注入即可获取当前请求对应的正确连接串：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureMultiTenant(cfg =>
+    {
+        cfg.ResolveTenant = ctx => TenantResolver.FromHost(ctx);
+
+        cfg.ConfigureDataSource(o =>
+        {
+            o.ConnectionStringResolver = tenantId =>
+                $"Server=db-{tenantId}.internal;Database=myapp";
+        });
+    });
+});
+
+// 任意 Scoped 服务中：
+public class OrderService
+{
+    private readonly ITenantDataSource _ds;
+    public OrderService(ITenantDataSource ds) => _ds = ds;
+
+    public void Connect()
+    {
+        var connStr = _ds.GetConnectionString(); // 自动按租户解析
+    }
+}
+```
+
+`ITenantDataSource` 是 Scoped 服务，从 `ITenant` 获取当前租户，再通过 `ConnectionStringResolver` 映射为连接串。租户未解析时返回 `null`。
+
+NuGet 插件（如 `Sharkable.AutoCrud.SqlSugar`）可将 `ITenantDataSource` 注入其 DB 客户端注册中，让注入的客户端自动指向正确的租户数据库——用户代码零修改。
+
 ## AOT 支持
 
 完全 AOT 安全。无反射、无 `dynamic`。中间件通过 `Func<HttpContext, string?>` 委托解析租户，`ITenant` / `Tenant` 均为普通接口和类。
