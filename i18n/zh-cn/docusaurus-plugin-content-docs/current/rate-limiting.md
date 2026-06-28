@@ -15,6 +15,24 @@ Sharkable 提供两种限流方式：
 
 分布式限流是固定窗口中间件，底层由 `IDistributedRateLimitStore` 驱动。默认使用进程内存储（`MemoryRateLimitStore`）；多实例部署时可替换为 Redis。
 
+:::tip Redis 插件
+开箱即用的 Redis 后端已发布为 NuGet 包：
+
+```bash
+dotnet add package Sharkable.Cache.Redis
+```
+
+```csharp
+builder.Services.AddSharkableRedis("localhost:6379");
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureRateLimiting(o => o.DefaultLimit = 100);
+});
+```
+
+[GitHub → Sharkable.Cache.Redis](https://github.com/SharkableIO/Sharkable.Cache.Redis)
+:::
+
 ### 快速开始
 
 ```csharp

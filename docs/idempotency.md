@@ -2,6 +2,24 @@
 
 Sharkable provides an opt-in middleware that lets clients safely retry non-idempotent HTTP requests (`POST` / `PUT` / `PATCH` / `DELETE`) without risk of duplicate execution. The first response is cached and replayed for subsequent requests carrying the same `Idempotency-Key` header.
 
+:::tip Redis Plugin
+For multi-instance deployments, a ready-to-use Redis-backed store is available:
+
+```bash
+dotnet add package Sharkable.Cache.Redis
+```
+
+```csharp
+builder.Services.AddSharkableRedis("localhost:6379");
+builder.Services.AddShark(opt =>
+{
+    opt.EnableIdempotency = true;
+});
+```
+
+[GitHub → Sharkable.Cache.Redis](https://github.com/SharkableIO/Sharkable.Cache.Redis)
+:::
+
 ## Quick Start
 
 ```csharp

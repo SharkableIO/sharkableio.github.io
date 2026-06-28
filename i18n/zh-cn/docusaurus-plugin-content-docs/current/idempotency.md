@@ -6,6 +6,24 @@ title: 幂等中间件
 
 Sharkable 提供一个可选启用的中间件，让客户端可以安全地重试非幂等的 HTTP 请求（`POST` / `PUT` / `PATCH` / `DELETE`），避免重复执行。第一次响应被缓存，后续携带相同 `Idempotency-Key` 头的请求会重放该响应。
 
+:::tip Redis 插件
+多实例部署需要开箱即用的 Redis 后端：
+
+```bash
+dotnet add package Sharkable.Cache.Redis
+```
+
+```csharp
+builder.Services.AddSharkableRedis("localhost:6379");
+builder.Services.AddShark(opt =>
+{
+    opt.EnableIdempotency = true;
+});
+```
+
+[GitHub → Sharkable.Cache.Redis](https://github.com/SharkableIO/Sharkable.Cache.Redis)
+:::
+
 ## 快速开始
 
 ```csharp

@@ -11,6 +11,24 @@ Sharkable provides two rate limiting approaches:
 
 The distributed rate limiter is a fixed-window middleware backed by `IDistributedRateLimitStore`. The default store is in-process (`MemoryRateLimitStore`); swap to Redis for multi-instance deployments.
 
+:::tip Redis Plugin
+A ready-to-use Redis-backed store is available as a NuGet package:
+
+```bash
+dotnet add package Sharkable.Cache.Redis
+```
+
+```csharp
+builder.Services.AddSharkableRedis("localhost:6379");
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureRateLimiting(o => o.DefaultLimit = 100);
+});
+```
+
+[GitHub → Sharkable.Cache.Redis](https://github.com/SharkableIO/Sharkable.Cache.Redis)
+:::
+
 ### Quick Start
 
 ```csharp
