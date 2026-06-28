@@ -30,9 +30,15 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Security',
+      collapsed: true,
+      items: ['api-key-auth', 'jwt-auth', 'cors', 'rate-limiting'],
+    },
+    {
+      type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
-      items: ['request-validation', 'builtin-middleware', 'rate-limiting', 'graceful-shutdown', 'config-validation'],
+      items: ['request-validation', 'output-caching', 'graceful-shutdown', 'config-validation', 'health-checks'],
     },
     {
       type: 'category',
