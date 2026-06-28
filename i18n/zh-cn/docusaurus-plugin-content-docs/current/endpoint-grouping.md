@@ -1,3 +1,7 @@
+---
+title: 端点分组与标签
+---
+
 # 端点分组与 OpenAPI 标签
 
 Sharkable 为 `ISharkEndpoint` 端点提供自动分组、OpenAPI 标签和 OperationId 生成。

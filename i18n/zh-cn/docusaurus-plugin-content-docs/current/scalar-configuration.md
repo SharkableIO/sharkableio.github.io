@@ -1,3 +1,7 @@
+---
+title: Scalar 配置
+---
+
 # Scalar 配置
 
 Sharkable 默认在 `/scalar/v1` 提供 Scalar API 参考 UI。你可以通过 `ConfigureScalar()` 自定义其外观和行为。

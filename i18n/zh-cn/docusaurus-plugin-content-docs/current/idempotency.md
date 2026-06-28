@@ -1,3 +1,7 @@
+---
+title: 幂等中间件
+---
+
 # 幂等中间件 / Idempotency
 
 Sharkable 提供一个可选启用的中间件，让客户端可以安全地重试非幂等的 HTTP 请求（`POST` / `PUT` / `PATCH` / `DELETE`），避免重复执行。第一次响应被缓存，后续携带相同 `Idempotency-Key` 头的请求会重放该响应。

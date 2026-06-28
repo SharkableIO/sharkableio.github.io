@@ -1,3 +1,7 @@
+---
+title: OpenAPI 元数据特性
+---
+
 # OpenAPI 元数据特性
 
 Sharkable 提供一组声明式特性，用于在 `ISharkEndpoint` 类上直接配置 OpenAPI 元数据。
