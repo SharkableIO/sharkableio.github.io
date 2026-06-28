@@ -1,6 +1,6 @@
 # Health Checks
 
-Sharkable maps a `/healthz` endpoint that returns the application health status.
+Sharkable maps a `/healthz` endpoint that returns a structured JSON health report via ASP.NET Core's `HealthCheckService`.
 
 ## Quick Start
 
@@ -11,27 +11,97 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-The `/healthz` endpoint returns:
-
+`GET /healthz`:
+```json
+{
+  "status": "healthy",
+  "checks": {},
+  "uptime": "02:34:12",
+  "version": "0.4.0"
+}
 ```
-HTTP 200 OK
-Content-Type: text/plain
-healthy
-```
 
-## Graceful Shutdown Integration
+## Custom Checks
 
-When [Graceful Shutdown](graceful-shutdown) is configured, the health check automatically returns 503 during shutdown. This signals load balancers and Kubernetes to stop routing traffic to the instance:
+Register custom health checks via `HealthChecksConfigure`:
 
 ```csharp
 builder.Services.AddShark(opt =>
 {
     opt.EnableHealthChecks = true;
-    opt.ConfigureGracefulShutdown(g => g.DrainTimeout = TimeSpan.FromSeconds(15));
+    opt.HealthChecksConfigure = hc =>
+    {
+        hc.AddCheck("external-api", async () =>
+        {
+            using var http = new HttpClient { Timeout = TimeSpan.FromSeconds(3) };
+            var response = await http.GetAsync("https://api.external.com/health");
+            return response.IsSuccessStatusCode
+                ? HealthCheckResult.Healthy()
+                : HealthCheckResult.Degraded($"external API returned {response.StatusCode}");
+        });
+
+        hc.AddCheck<MyCustomHealthCheck>("my-check");
+    };
 });
 ```
 
-During normal operation → `healthy` (200). During shutdown → 503.
+Response with checks:
+```json
+{
+  "status": "degraded",
+  "checks": {
+    "external-api": {
+      "status": "degraded",
+      "description": "external API returned 503",
+      "data": null,
+      "exception": null
+    }
+  },
+  "uptime": "02:34:12",
+  "version": "0.4.0"
+}
+```
+
+## Auto Checks
+
+When JWT is configured, a JWT authority reachability check is automatically registered:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableHealthChecks = true;
+    opt.ConfigureJwt("https://auth.example.com", ["my-api"]);
+    // JWT check automatically added
+});
+```
+
+Additional auto-checks can be added via NuGet plugins (e.g., `Sharkable.AutoCrud.SqlSugar` adds database connectivity).
+
+## Status Codes
+
+| Overall Status | HTTP Code | When |
+|---------------|-----------|------|
+| `healthy` | 200 | All checks pass |
+| `degraded` | 200 | Some checks degraded, none failing |
+| `unhealthy` | 503 | At least one check failing, or shutting down |
+
+## Graceful Shutdown Integration
+
+When [Graceful Shutdown](graceful-shutdown) is configured, `/healthz` returns 503 during shutdown:
+
+```json
+{
+  "status": "unhealthy",
+  "checks": {
+    "shutdown": {
+      "status": "unhealthy",
+      "message": "Server is shutting down"
+    }
+  },
+  "uptime": "18:42:07",
+  "version": "0.4.0"
+}
+```
 
 ## Kubernetes Readiness Probe
 
