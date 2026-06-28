@@ -1,0 +1,26 @@
+{
+  "version.AriaLabel": {
+    "message": "版本"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "入门指南"
+  },
+  "sidebar.docs.category.OpenAPI": {
+    "message": "OpenAPI"
+  },
+  "sidebar.docs.category.Error Handling": {
+    "message": "错误处理"
+  },
+  "sidebar.docs.category.Request Pipeline": {
+    "message": "请求管道"
+  },
+  "sidebar.docs.category.Logging & Auditing": {
+    "message": "日志与审计"
+  },
+  "sidebar.docs.category.Advanced Features": {
+    "message": "高级功能"
+  },
+  "item.label.Docs": {
+    "message": "文档"
+  }
+}
