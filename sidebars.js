@@ -36,6 +36,12 @@ const sidebars = {
     },
     {
       type: 'category',
+      label: 'Quality',
+      collapsed: true,
+      items: ['route-analyzer'],
+    },
+    {
+      type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
       items: ['request-validation', 'output-caching', 'graceful-shutdown', 'config-validation', 'health-checks'],
