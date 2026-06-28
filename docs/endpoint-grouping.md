@@ -95,9 +95,9 @@ builder.Services.AddShark(opt =>
 | ToLower | testuser | `api/testuser/...` |
 | UnChanged | TestUser | `api/TestUser/...` |
 
-## Old-style `[SharkEndpoint]` endpoints (AOT-incompatible)
+## Old-style `[SharkEndpoint]` endpoints (deprecated, AOT-incompatible)
 
-> ⚠️ Attribute-based endpoints use runtime reflection and do **not** work in Native AOT publishing. Use `ISharkEndpoint` for AOT-safe code.
+> **Deprecated since v0.4.0. Will be removed in v0.5.0.** Attribute-based endpoints use runtime reflection and do **not** work in Native AOT publishing. Migrate to `ISharkEndpoint` immediately.
 
 Attribute-based endpoints also get OpenAPI tags and OperationId support:
 

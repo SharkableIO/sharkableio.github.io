@@ -11,7 +11,7 @@ dotnet add package Sharkable --version 0.4.1
 或使用包引用：
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.3.2" />
+<PackageReference Include="Sharkable" Version="0.4.1" />
 ```
 
 在项目中添加引用：
