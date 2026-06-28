@@ -1,4 +1,13 @@
 {
+  "homepage.tagline": {
+    "message": "支持 AOT 的 .NET Minimal API 框架"
+  },
+  "homepage.button.quickstart": {
+    "message": "快速开始 →"
+  },
+  "homepage.button.github": {
+    "message": "GitHub ↗"
+  },
   "homepage.feature.routing.title": {
     "message": "基于约定的路由"
   },
