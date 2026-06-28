@@ -15,6 +15,10 @@
     "message": "错误处理",
     "description": "The label for category 'Error Handling' in sidebar 'docs'"
   },
+  "sidebar.docs.category.Quality": {
+    "message": "质量保障",
+    "description": "The label for category 'Quality' in sidebar 'docs'"
+  },
   "sidebar.docs.category.Security": {
     "message": "安全",
     "description": "The label for category 'Security' in sidebar 'docs'"

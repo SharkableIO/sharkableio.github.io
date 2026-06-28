@@ -7,7 +7,7 @@ dotnet add package Sharkable --version 0.4.0
 Or using package reference:
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.3.2" />
+<PackageReference Include="Sharkable" Version="0.4.0" />
 ```
 
 Add the using directive:
