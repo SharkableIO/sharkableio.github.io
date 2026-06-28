@@ -169,3 +169,33 @@ builder.Services.AddShark(opt =>
 // 通过 DSL 按端点应用
 app.MapGet("hello", () => "hi").SharkRequireRateLimiting("fixed");
 ```
+
+## 自适应限流
+
+启用自适应模式，根据 CPU 使用率和 GC 压力动态调整限流上限：
+
+```csharp
+opt.ConfigureRateLimiting(o =>
+{
+    o.EnableAdaptive = true;
+    o.BasePermitLimit = 100;           // 正常目标
+    o.MinPermitLimit = 10;            // 高负载下限
+    o.MaxPermitLimit = 500;           // 空闲上限
+    o.AdaptiveCpuHighThreshold = 80;  // CPU 超过此阈值降低限流
+    o.AdaptiveCpuLowThreshold = 40;   // CPU 低于此阈值提升限流
+    o.AdaptiveAdjustmentInterval = TimeSpan.FromSeconds(5);  // 采样间隔
+});
+```
+
+**工作原理：**
+- 后台监控器每 `AdjustmentInterval` 采样进程 CPU + GC 数据
+- **高负载**（CPU > `HighThreshold` 或 GC > 80%）：降低 ~10%
+- **低负载**（CPU < `LowThreshold` 且 GC < 50%）：提升 ~10%
+- **中等负载**：向 `BasePermitLimit` 靠拢
+- 限流值钳制在 `MinPermitLimit` 和 `MaxPermitLimit` 之间
+
+`X-RateLimit-Limit` 响应头反映当前动态值，而非基准值。<｜end▁of▁thinking｜>Now commit everything — source, roadmap, docs:
+
+<｜｜DSML｜｜tool_calls>
+<｜｜DSML｜｜invoke name="bash">
+<｜｜DSML｜｜parameter name="description" string="true">Copy analyzer DLL, sync roadmap, commit and push all
