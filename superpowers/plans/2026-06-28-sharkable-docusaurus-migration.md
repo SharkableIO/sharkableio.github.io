@@ -29,7 +29,7 @@
 - `i18n/zh-cn/docusaurus-plugin-content-docs/current/*.md` — 13 篇中文文档
 - `i18n/zh-cn/docusaurus-plugin-content-pages/current/index.js` — 中文营销首页
 - `i18n/zh-cn/code.json` — 中文 UI 翻译
-- `static/img/logo.svg` — Logo（转换自 logo.jpg）
+- `static/img/logo.jpg` — Logo（保留 jpg 格式，因 potrace 不可用无法生成 SVG；Task 8 引用 logo.jpg）
 - `.github/workflows/deploy.yml` — GitHub Actions
 - `versions.json` — 版本配置
 - `~/dev/sharkdoc/` — 归档目录（仓库外）
@@ -423,7 +423,7 @@ import { themes as prismThemes } from 'prism-react-renderer';
 const config = {
   title: 'Sharkable',
   tagline: 'AOT-compatible Minimal API framework for .NET',
-  favicon: 'img/logo.svg',
+  favicon: 'img/logo.jpg',
 
   url: 'https://sharkableio.github.io',
   baseUrl: '/',
@@ -472,7 +472,7 @@ const config = {
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
-      image: 'img/logo.svg',
+      image: 'img/logo.jpg',
       colorMode: {
         defaultMode: 'light',
         disableSwitch: false,
@@ -482,7 +482,7 @@ const config = {
         title: 'Sharkable',
         logo: {
           alt: 'Sharkable Logo',
-          src: 'img/logo.svg',
+          src: 'img/logo.jpg',
         },
         items: [
           {
@@ -923,7 +923,6 @@ import styles from './HomepageFeatures.module.css';
 const FeatureList = [
   {
     title: 'Convention-based Routing',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         <code>ISharkEndpoint</code> → auto-routed at <code>/api/{'{group}'}/{'{route}'}</code>.
@@ -933,7 +932,6 @@ const FeatureList = [
   },
   {
     title: 'AOT-ready',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         Works with <code>PublishAot=true</code>. Native AOT compilation
@@ -943,7 +941,6 @@ const FeatureList = [
   },
   {
     title: 'Rich Middleware',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         Audit trail, idempotency, multi-tenant, request validation,
@@ -953,7 +950,6 @@ const FeatureList = [
   },
   {
     title: 'OpenAPI Integration',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         Class-level metadata attributes, API versioning, Scalar UI
@@ -963,7 +959,6 @@ const FeatureList = [
   },
   {
     title: 'Unified Error Handling',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         <code>UnifiedResult&lt;T&gt;</code> + global exception handler
@@ -973,7 +968,6 @@ const FeatureList = [
   },
   {
     title: 'Structured Logging',
-    Svg: require('@site/static/img/logo.svg').default,
     description: (
       <>
         Redacting formatter to protect sensitive data automatically.
@@ -983,12 +977,9 @@ const FeatureList = [
   },
 ];
 
-function Feature({Svg, title, description}) {
+function Feature({title, description}) {
   return (
     <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
       <div className="text--center padding-horiz--md">
         <h3>{title}</h3>
         <p>{description}</p>
