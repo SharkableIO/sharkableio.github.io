@@ -93,7 +93,7 @@ Available flags: `None`, `List`, `Get`, `Create`, `Update`, `Delete`, `ListAll`,
 ```csharp
 CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
     CrudOperations.All | CrudOperations.ListAll;
-// Now GET /?all=true returns the entire table
+// Now GET /all returns the entire table
 ```
 
 `ListAll` is intentionally excluded from `All` — full dumps are dangerous on large tables.

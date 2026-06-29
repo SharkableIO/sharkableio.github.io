@@ -97,7 +97,7 @@ public class ReadOnlyEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 ```csharp
 CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
     CrudOperations.All | CrudOperations.ListAll;
-// 现在 GET /?all=true 返回全表
+// 现在 GET /all 返回全表
 ```
 
 `ListAll` 故意排除在 `All` 之外——大表全量 dump 有风险。
