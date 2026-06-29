@@ -197,8 +197,22 @@ When `EnableHealthChecks = true`, SqlSugar connectivity is automatically checked
 }
 ```
 
+## AOT Support (Zero rd.xml)
+
+.NET Native AOT publishing requires all types to be known at compile time — the trimmer removes unreferenced types. Normally, SqlSugar entities need manual `rd.xml` entries to survive trimming.
+
+Sharkable ships a Source Generator that discovers all `IAutoCrudEntity<T>` implementations and emits `typeof(T)` references for every entity type — forcing the trimmer to preserve them. **No rd.xml needed.**
+
+```bash
+dotnet publish -c Release -r linux-x64 --self-contained
+# Entity types are preserved automatically
+```
+
+Works with any `Sharkable.AutoCrud.SqlSugar` version that depends on Sharkable ≥ 0.4.1.
+
 ## Architecture
 
-- **Sharkable core** provides `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator`
+- **Sharkable core** provides `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator` + `FilterOperator`
 - **Sharkable.AutoCrud.SqlSugar** implements `IAutoCrudGenerator` with SqlSugar ORM
+- **AOT preservation** via built-in Source Generator (zero config)
 - Future ORM plugins can implement `IAutoCrudGenerator` for other databases (EF Core, Dapper, etc.)

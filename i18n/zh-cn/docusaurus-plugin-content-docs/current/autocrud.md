@@ -199,8 +199,22 @@ fetch(`/api/product?${params}`);
 }
 ```
 
+## AOT 支持（零 rd.xml）
+
+.NET Native AOT 发布要求所有类型在编译时已知——trimmer 会移除未引用的类型。通常 SqlSugar 实体需要手写 `rd.xml` 才能保留。
+
+Sharkable 内置 Source Generator，扫描所有 `IAutoCrudEntity<T>` 实现并发出 `typeof(T)` 引用——强制 trimmer 保留实体类型。**无需 rd.xml。**
+
+```bash
+dotnet publish -c Release -r linux-x64 --self-contained
+# 实体类型自动保留
+```
+
+依赖 Sharkable ≥ 0.4.1 的任意 `Sharkable.AutoCrud.SqlSugar` 版本均可使用。
+
 ## 架构
 
-- **Sharkable 核心**提供 `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator`
+- **Sharkable 核心**提供 `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator` + `FilterOperator`
 - **Sharkable.AutoCrud.SqlSugar** 实现 `IAutoCrudGenerator`（基于 SqlSugar ORM）
+- **AOT 保留** 通过内置 Source Generator（零配置）
 - 未来 ORM 插件可实现 `IAutoCrudGenerator` 接入其他数据库（EF Core、Dapper 等）
