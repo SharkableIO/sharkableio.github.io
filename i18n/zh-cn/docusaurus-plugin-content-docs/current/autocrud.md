@@ -4,7 +4,7 @@ title: AutoCrud 自动 API 生成
 
 # AutoCrud 自动 API 生成
 
-Sharkable 通过 `IAutoCrudEntity<T>` 标记接口提供自动 CRUD API 生成。在任意 `ISharkEndpoint` 类上实现此接口，即可自动生成全部五项 CRUD 操作——无需额外配置。
+Sharkable 通过 `IAutoCrudEntity<T>` 标记接口提供自动 CRUD API 生成。在任意 `ISharkEndpoint` 类上实现此接口，即可自动生成安全的 CRUD 操作——默认分页，无需额外配置。
 
 ## 快速开始
 
@@ -41,19 +41,39 @@ public class Product
 
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
-    // 空 — 全部 5 项 CRUD 操作自动生成
+    // 空 — 安全 CRUD 自动生成（分页，无全量 dump）
 }
 ```
 
 **自动生成的路由**（`api/product`）：
 
-| 方法 | 路由 | 操作 |
-|------|------|------|
-| `GET` | `/` | 列表 |
-| `GET` | `/{id}` | 按主键查询 |
-| `POST` | `/` | 新增 |
-| `PUT` | `/{id}` | 更新 |
-| `DELETE` | `/{id}` | 删除 |
+| 方法 | 路由 | 操作 | 描述 |
+|------|------|------|------|
+| `GET` | `/` | 分页列表 | `?page=1&pageSize=20` → `{items,total,page,pageSize,totalPages}` |
+| `GET` | `/{id}` | 按主键查询 | 单条实体 |
+| `POST` | `/` | 新增 | 请求体 = 实体 |
+| `PUT` | `/{id}` | 更新 | 请求体 = 实体 |
+| `DELETE` | `/{id}` | 删除 | 按主键 |
+
+## 分页
+
+`List` 默认返回分页结果，无需额外配置：
+
+```
+GET /api/product?page=1&pageSize=20
+```
+
+```json
+{
+  "items": [{ "id": 1, "name": "Widget", "price": 9.99 }, ...],
+  "total": 847,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 43
+}
+```
+
+`pageSize` 上限 100。不认识的字段自动忽略。
 
 ## 屏蔽操作
 
@@ -68,7 +88,19 @@ public class ReadOnlyEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 }
 ```
 
-可用标志：`None`、`List`、`Get`、`Create`、`Update`、`Delete`、`All`。
+可用标志：`None`、`List`、`Get`、`Create`、`Update`、`Delete`、`ListAll`、`All`。
+
+> `All = List | Get | Create | Update | Delete` — **不包含 `ListAll`**。全量 dump 需显式打开以确保安全。
+
+### 启用全量导出
+
+```csharp
+CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
+    CrudOperations.All | CrudOperations.ListAll;
+// 现在 GET /?all=true 返回全表
+```
+
+`ListAll` 故意排除在 `All` 之外——大表全量 dump 有风险。
 
 ## 自定义覆盖
 
@@ -79,7 +111,6 @@ public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // 带过滤的自定义列表
         app.MapGet("/", async (ISqlSugarClient db) =>
         {
             var list = await db.Queryable<Product>()
@@ -95,9 +126,7 @@ public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 
 ## 搜索与过滤
 
-`List` 操作支持 `filter[field][op]=value` 查询参数，同时支持排序和分页——全部自动，无需代码改动。
-
-### URL 约定
+`List` 操作支持 `filter[field][op]=value` 查询参数，同时支持排序和分页。
 
 ```
 GET /api/product?filter[price][gte]=100&filter[price][lte]=500&filter[name][like]=Widget%&sort=-price&page=1&pageSize=20
@@ -137,7 +166,19 @@ fetch(`/api/product?${params}`);
 
 ## 健康检查
 
-`EnableHealthChecks = true` 时，SqlSugar 连接状态自动纳入 `/healthz`。
+`EnableHealthChecks = true` 时，SqlSugar 连接状态自动纳入 `/healthz`：
+
+```json
+{
+  "checks": {
+    "SqlSugar": {
+      "status": "healthy",
+      "description": "SqlSugar connected in 3ms",
+      "data": { "latencyMs": 3, "dbType": "Sqlite" }
+    }
+  }
+}
+```
 
 ## 架构
 

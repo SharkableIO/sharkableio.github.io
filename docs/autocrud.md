@@ -1,6 +1,6 @@
 # AutoCrud
 
-Sharkable provides automatic CRUD API generation via `IAutoCrudEntity<T>`. Implement this marker interface on any `ISharkEndpoint` class, and all five CRUD operations are generated automatically — with zero additional configuration.
+Sharkable provides automatic CRUD API generation via `IAutoCrudEntity<T>`. Implement this marker interface on any `ISharkEndpoint` class, and safe CRUD operations are generated automatically — paginated by default, with zero additional configuration.
 
 ## Quick Start
 
@@ -37,19 +37,39 @@ public class Product
 
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
-    // Empty — all 5 CRUD operations auto-generated
+    // Empty — safe CRUD auto-generated (paginated, no full dump)
 }
 ```
 
 **Generated routes** at `api/product`:
 
-| Method | Route | Operation |
-|--------|-------|-----------|
-| `GET` | `/` | List all |
-| `GET` | `/{id}` | Get by PK |
-| `POST` | `/` | Create |
-| `PUT` | `/{id}` | Update |
-| `DELETE` | `/{id}` | Delete |
+| Method | Route | Operation | Description |
+|--------|-------|-----------|-------------|
+| `GET` | `/` | Paginated list | `?page=1&pageSize=20` → `{items,total,page,pageSize,totalPages}` |
+| `GET` | `/{id}` | Get by PK | Single entity |
+| `POST` | `/` | Create | Request body = entity |
+| `PUT` | `/{id}` | Update | Request body = entity |
+| `DELETE` | `/{id}` | Delete | By PK |
+
+## Pagination
+
+`List` returns paginated results by default. No extra config needed:
+
+```
+GET /api/product?page=1&pageSize=20
+```
+
+```json
+{
+  "items": [{ "id": 1, "name": "Widget", "price": 9.99 }, ...],
+  "total": 847,
+  "page": 1,
+  "pageSize": 20,
+  "totalPages": 43
+}
+```
+
+`pageSize` is capped at 100. Unknown fields in query params are silently ignored.
 
 ## Suppress Operations
 
@@ -64,7 +84,19 @@ public class ReadOnlyEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 }
 ```
 
-Available flags: `None`, `List`, `Get`, `Create`, `Update`, `Delete`, `All`.
+Available flags: `None`, `List`, `Get`, `Create`, `Update`, `Delete`, `ListAll`, `All`.
+
+> `All = List | Get | Create | Update | Delete` — **does not include `ListAll`**. Full-table dumps must be explicitly opted into for safety.
+
+### Enable Full-Table Dump
+
+```csharp
+CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
+    CrudOperations.All | CrudOperations.ListAll;
+// Now GET /?all=true returns the entire table
+```
+
+`ListAll` is intentionally excluded from `All` — full dumps are dangerous on large tables.
 
 ## Custom Override
 
@@ -75,7 +107,6 @@ public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
     public void AddRoutes(IEndpointRouteBuilder app)
     {
-        // Custom list with filtering
         app.MapGet("/", async (ISqlSugarClient db) =>
         {
             var list = await db.Queryable<Product>()
