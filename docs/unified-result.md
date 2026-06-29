@@ -117,3 +117,30 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
 });
 ```
+
+## ProblemDetails (RFC 7807)
+
+Sharkable supports RFC 7807 ProblemDetails as an alternative error response format. Enable with one flag:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.UseProblemDetails = true;
+});
+```
+
+**Standard format** (all error responses):
+
+```json
+{
+  "type": "https://httpstatuses.com/429",
+  "title": "Too Many Requests",
+  "status": 429,
+  "detail": "Rate limit exceeded. Please retry later.",
+  "instance": "/api/orders",
+  "traceId": "4bf92f3577b34ad00000000000000000"
+}
+```
+
+When disabled (default), error responses use the Sharkable unified result envelope instead. `UseProblemDetails` affects all framework-generated errors: 400, 401, 403, 404, 409, 422, 429, 500, 503.
+```

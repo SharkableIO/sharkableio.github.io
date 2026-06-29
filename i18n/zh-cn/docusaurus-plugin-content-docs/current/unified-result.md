@@ -121,3 +121,30 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
 });
 ```
+
+## ProblemDetails (RFC 7807)
+
+Sharkable 支持 RFC 7807 ProblemDetails 作为替代错误响应格式。一行启用：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.UseProblemDetails = true;
+});
+```
+
+**标准格式**（所有错误响应）：
+
+```json
+{
+  "type": "https://httpstatuses.com/429",
+  "title": "Too Many Requests",
+  "status": 429,
+  "detail": "限流已超，请稍后重试。",
+  "instance": "/api/orders",
+  "traceId": "4bf92f3577b34ad00000000000000000"
+}
+```
+
+关闭（默认）时，错误响应使用 Sharkable 统一结果格式。`UseProblemDetails` 影响框架生成的所有错误：400、401、403、404、409、422、429、500、503。
+```
