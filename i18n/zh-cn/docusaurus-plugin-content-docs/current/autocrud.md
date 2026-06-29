@@ -6,6 +6,25 @@ title: AutoCrud 自动 API 生成
 
 Sharkable 通过 `IAutoCrudEntity<T>` 标记接口提供自动 CRUD API 生成。在任意 `ISharkEndpoint` 类上实现此接口，即可自动生成安全的 CRUD 操作——默认分页，无需额外配置。
 
+## 为什么选择 SqlSugar
+
+Sharkable.AutoCrud 基于 [SqlSugar](https://github.com/DotNetNext/SqlSugar) — 一款轻量高性能 .NET ORM：
+
+| | |
+|---|---|
+| **开源协议** | MIT — 无限制，商业友好 |
+| **数据库支持** | MySQL、SQL Server、PostgreSQL、SQLite、Oracle、MariaDB、达梦、人大金仓、瀚高、GaussDB、DuckDB、MongoDB、QuestDB、ClickHouse、OceanBase、DB2、HANA、TDSQL、ODBC |
+| **性能** | 接近原生 ADO.NET — 多项基准测试快于 EF Core |
+| **AOT 支持** | `StaticConfig.EnableAot = true` — .NET Native AOT 兼容 |
+| **零追踪开销** | 查询默认返回普通 POCO 对象，无变更追踪成本 |
+| **LINQ + Lambda + SQL** | 完整 LINQ 支持（`Where/OrderBy/Select`），同时支持原生 SQL |
+| **Code-first / DB-first** | 实体自动迁移，或从已有数据库反向生成 |
+| **多租户** | 内置 `SugarTenant` 表/库级别隔离 |
+| **分表分库** | 原生支持水平分片 |
+| **种子数据** | 内置数据填充器，方便测试/演示 |
+
+以上特性在 Sharkable.AutoCrud 中无需额外配置——生成器将 `IAutoCrudEntity<T>` 直接映射到 SqlSugar 的 `Queryable<T>/Insertable<T>/Updateable<T>/Deleteable<T>` API。
+
 ## 快速开始
 
 ### 1. 安装插件

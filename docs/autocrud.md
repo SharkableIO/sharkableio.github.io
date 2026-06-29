@@ -2,6 +2,25 @@
 
 Sharkable provides automatic CRUD API generation via `IAutoCrudEntity<T>`. Implement this marker interface on any `ISharkEndpoint` class, and safe CRUD operations are generated automatically — paginated by default, with zero additional configuration.
 
+## Why SqlSugar
+
+Sharkable.AutoCrud is built on [SqlSugar](https://github.com/DotNetNext/SqlSugar) — a lightweight, high-performance ORM for .NET:
+
+| | |
+|---|---|
+| **License** | MIT — no restrictions, commercial-friendly |
+| **Databases** | MySQL, SQL Server, PostgreSQL, SQLite, Oracle, MariaDB, 达梦, 人大金仓, 瀚高, GaussDB, DuckDB, MongoDB, QuestDB, ClickHouse, OceanBase, DB2, HANA, TDSQL, ODBC |
+| **Performance** | Close to raw ADO.NET — faster than EF Core in benchmarks |
+| **AOT support** | `StaticConfig.EnableAot = true` — compatible with .NET Native AOT |
+| **No tracking overhead** | Queries return plain POCO objects by default, zero change-tracking cost |
+| **LINQ + Lambda + SQL** | Full LINQ support with `Where/OrderBy/Select`, plus raw SQL when needed |
+| **Code-first / DB-first** | Auto-migrate from entities or reverse-engineer from existing databases |
+| **Tenant support** | Built-in multi-tenant table/DB isolation via `SugarTenant` |
+| **Split-table / split-db** | Horizontal partitioning and sharding out of the box |
+| **Seed data** | Built-in data seeder for test/demo environments |
+
+All of these work with Sharkable.AutoCrud without extra configuration — the generator maps `IAutoCrudEntity<T>` directly to SqlSugar's `Queryable<T>/Insertable<T>/Updateable<T>/Deleteable<T>` APIs.
+
 ## Quick Start
 
 ### 1. Install Plugin
