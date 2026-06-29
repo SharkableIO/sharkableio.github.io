@@ -197,6 +197,27 @@ When `EnableHealthChecks = true`, SqlSugar connectivity is automatically checked
 }
 ```
 
+## Soft Delete
+
+Mark an entity with `ISoftDeletable` and AutoCrud handles soft deletion automatically — no code changes needed:
+
+```csharp
+public class Product : ISoftDeletable
+{
+    public int Id { get; set; }
+    public bool IsDeleted { get; set; }  // convention-based detection
+}
+```
+
+**Behavior**:
+
+| Operation | Without ISoftDeletable | With ISoftDeletable |
+|-----------|----------------------|---------------------|
+| List / Get / ListAll | All rows | `WHERE IsDeleted = 0` only |
+| Delete | Hard delete | `UPDATE SET IsDeleted = 1` (soft) |
+
+The `IsDeleted` property is detected by name (case-insensitive). No attributes, no configuration — just add the interface.
+
 ## AOT Support (Zero rd.xml)
 
 .NET Native AOT publishing requires all types to be known at compile time — the trimmer removes unreferenced types. Normally, SqlSugar entities need manual `rd.xml` entries to survive trimming.

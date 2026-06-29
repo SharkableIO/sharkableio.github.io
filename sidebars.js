@@ -44,7 +44,7 @@ const sidebars = {
       type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
-      items: ['request-validation', 'output-caching', 'graceful-shutdown', 'config-validation', 'health-checks'],
+      items: ['request-validation', 'output-caching', 'response-compression', 'graceful-shutdown', 'config-validation', 'health-checks'],
     },
     {
       type: 'category',

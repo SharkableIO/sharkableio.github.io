@@ -199,6 +199,27 @@ fetch(`/api/product?${params}`);
 }
 ```
 
+## 软删除
+
+实体标记 `ISoftDeletable` 后，AutoCrud 自动处理软删除——无需代码改动：
+
+```csharp
+public class Product : ISoftDeletable
+{
+    public int Id { get; set; }
+    public bool IsDeleted { get; set; }  // 约定式检测
+}
+```
+
+**行为变化**：
+
+| 操作 | 未标记 ISoftDeletable | 已标记 ISoftDeletable |
+|------|----------------------|----------------------|
+| List / Get / ListAll | 所有行 | 仅 `WHERE IsDeleted = 0` |
+| Delete | 物理删除 | `UPDATE SET IsDeleted = 1`（软删除） |
+
+`IsDeleted` 属性按名称检测（不区分大小写）。无需特性配置、无需额外代码。
+
 ## AOT 支持（零 rd.xml）
 
 .NET Native AOT 发布要求所有类型在编译时已知——trimmer 会移除未引用的类型。通常 SqlSugar 实体需要手写 `rd.xml` 才能保留。
