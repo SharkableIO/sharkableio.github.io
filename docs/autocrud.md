@@ -89,6 +89,48 @@ public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 }
 ```
 
+## Search & Filtering
+
+The `List` operation supports filtering via `filter[field][op]=value` query parameters, plus sorting and pagination — all automatically, no code changes needed.
+
+### URL Convention
+
+```
+GET /api/product?filter[price][gte]=100&filter[price][lte]=500&filter[name][like]=Widget%&sort=-price&page=1&pageSize=20
+```
+
+### Operators
+
+| Key | SQL | Example |
+|-----|-----|---------|
+| *(no op)* | `=` | `?filter[name]=Widget` |
+| `eq` | `=` | `?filter[name][eq]=Widget` |
+| `ne` | `<>` | `?filter[price][ne]=0` |
+| `gt` / `gte` | `>` / `>=` | `?filter[price][gte]=100` |
+| `lt` / `lte` | `<` / `<=` | `?filter[price][lte]=500` |
+| `like` | `LIKE` | `?filter[name][like]=Widget%` |
+| `in` / `nin` | `IN` / `NOT IN` | `?filter[status][in]=active,pending` |
+| `null` | `IS NULL` | `?filter[deleted][null]=true` |
+
+### Sorting
+
+`?sort=field` (asc), `?sort=-field` (desc), `?sort=-price,+name` (multi-field).
+
+### Safety
+
+Unknown fields are silently ignored. All values are parameterized.
+
+### Frontend Example
+
+```javascript
+const params = new URLSearchParams({
+  'filter[price][gte]': 100,
+  'filter[name][like]': 'Widget%',
+  sort: '-price'
+});
+fetch(`/api/product?${params}`);
+```
+
 ## Health Check
 
 When `EnableHealthChecks = true`, SqlSugar connectivity is automatically checked via `/healthz`:

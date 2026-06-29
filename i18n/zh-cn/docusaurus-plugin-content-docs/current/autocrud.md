@@ -93,6 +93,48 @@ public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 }
 ```
 
+## 搜索与过滤
+
+`List` 操作支持 `filter[field][op]=value` 查询参数，同时支持排序和分页——全部自动，无需代码改动。
+
+### URL 约定
+
+```
+GET /api/product?filter[price][gte]=100&filter[price][lte]=500&filter[name][like]=Widget%&sort=-price&page=1&pageSize=20
+```
+
+### 操作符
+
+| 键 | SQL | 示例 |
+|----|-----|------|
+| *(无 op)* | `=` | `?filter[name]=Widget` |
+| `eq` | `=` | `?filter[name][eq]=Widget` |
+| `ne` | `<>` | `?filter[price][ne]=0` |
+| `gt` / `gte` | `>` / `>=` | `?filter[price][gte]=100` |
+| `lt` / `lte` | `<` / `<=` | `?filter[price][lte]=500` |
+| `like` | `LIKE` | `?filter[name][like]=Widget%` |
+| `in` / `nin` | `IN` / `NOT IN` | `?filter[status][in]=active,pending` |
+| `null` | `IS NULL` | `?filter[deleted][null]=true` |
+
+### 排序
+
+`?sort=field`（升序），`?sort=-field`（降序），`?sort=-price,+name`（多字段）。
+
+### 安全
+
+未知字段自动忽略。所有值参数化。
+
+### 前端示例
+
+```javascript
+const params = new URLSearchParams({
+  'filter[price][gte]': 100,
+  'filter[name][like]': 'Widget%',
+  sort: '-price'
+});
+fetch(`/api/product?${params}`);
+```
+
 ## 健康检查
 
 `EnableHealthChecks = true` 时，SqlSugar 连接状态自动纳入 `/healthz`。
