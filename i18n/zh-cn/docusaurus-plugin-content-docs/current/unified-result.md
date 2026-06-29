@@ -110,7 +110,17 @@ builder.Services.AddShark(opt =>
 
 ## AOT 支持
 
-使用 `[JsonSerializable]` 注册你的结果类型以支持 AOT 编译：
+Sharkable 内置 Source Generator，自动保留所有端点返回值的 `UnifiedResult<T>` 类型——**无需 `JsonSerializerContext`**：
+
+```csharp
+app.MapGet("/users", () => new UserDto { Name = "Alice" });
+app.MapGet("/orders", () => new OrderDto { Id = 1 });
+// UnifiedResult<UserDto> + UnifiedResult<OrderDto> 编译时自动保留
+```
+
+SG 扫描所有 `MapGet/Post/Put/Patch/Delete` 委托，提取返回类型，发出 `typeof(UnifiedResult<T>)` 引用。配合 AutoCrud AOT 保留器，所有实体类型和统一结果类型在 Native AOT 剪裁后存活，无需手动配置。
+
+自定义 `IUnifiedResultFactory` 的自定义类型需注册 JSON 序列化上下文：
 
 ```csharp
 [JsonSerializable(typeof(MyResult))]
