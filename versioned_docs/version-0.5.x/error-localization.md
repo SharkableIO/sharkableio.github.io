@@ -124,6 +124,17 @@ Client sends `Accept-Language: zh-CN` → `{ "message": "欢迎" }`.
 
 The `.Localize()` extension resolves the culture from the `Accept-Language` header automatically. No manual header parsing needed.
 
+To inspect the resolved culture directly, use `ctx.GetCulture()`:
+
+```csharp
+app.MapGet("/info", (HttpContext ctx) =>
+{
+    var culture = ctx.GetCulture(); // e.g. "zh-CN", "en", "ja"
+    var greeting = ctx.Localize("Welcome");
+    return Results.Ok(new { culture, greeting });
+});
+```
+
 ### Format Arguments
 
 For messages with placeholders, use `{0}`, `{1}` in your translation and pass arguments:

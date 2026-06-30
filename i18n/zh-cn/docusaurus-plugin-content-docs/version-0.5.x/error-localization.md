@@ -128,6 +128,17 @@ app.MapGet("/hello", (HttpContext ctx) =>
 
 `.Localize()` 扩展方法会自动从 `Accept-Language` 头解析语言，不需要手动解析。
 
+如需直接获取解析后的语言，使用 `ctx.GetCulture()`：
+
+```csharp
+app.MapGet("/info", (HttpContext ctx) =>
+{
+    var culture = ctx.GetCulture(); // 如 "zh-CN", "en", "ja"
+    var greeting = ctx.Localize("Welcome");
+    return Results.Ok(new { culture, greeting });
+});
+```
+
 ### 格式化参数
 
 如果翻译文本包含 `{0}`、`{1}` 占位符，直接传参即可：
