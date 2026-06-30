@@ -47,6 +47,9 @@ opt.ConfigureProfiler(p =>
 
     // 追踪的最慢请求数。默认：20
     p.TopSlowRequests = 10;
+
+    // 环形缓冲区最大记录数。默认：1000
+    p.MaxEntries = 1000;
 });
 ```
 

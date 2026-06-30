@@ -51,6 +51,79 @@ app.UseShark(opt =>
 });
 ```
 
+## ProblemDetails (RFC 7807)
+
+Sharkable supports RFC 7807 ProblemDetails as an alternative error response format. Enable with one flag:
+
+```csharp
+opt.UseProblemDetails = true;
+```
+
+When enabled, all error responses switch from the unified result envelope to `application/problem+json`:
+
+```json
+{
+  "type": "https://httpstatuses.com/404",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "user not found",
+  "instance": "/api/users/42",
+  "traceId": "c8a0f6e4-9b2d-4f1a-b3c7-2e5d8a1f0b6c"
+}
+```
+
+### Custom ProblemDetails Fields
+
+The `type` URI and `title` are customizable via factory delegates:
+
+```csharp
+opt.ProblemDetailsTypeFactory = status => $"https://example.com/errors/{status}";
+opt.ProblemDetailsTitleFactory = status => status switch
+{
+    400 => "Bad Request",
+    404 => "Not Found",
+    _ => "Error"
+};
+```
+
+## ETag / 304 Not Modified
+
+Sharkable provides opt-in ETag support for GET/HEAD responses:
+
+```csharp
+opt.EnableETag = true;
+```
+
+### ETag Configuration
+
+```csharp
+opt.ETagOptions = new ETagOptions
+{
+    // HTTP methods eligible for ETag caching. Default: GET, HEAD.
+    CacheableMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "GET", "HEAD" },
+
+    // Cache-Control header on ETagged responses. Default: "public, max-age=0, must-revalidate".
+    CacheControlHeader = "public, max-age=3600",
+
+    // Predicate to skip caching for certain status codes. Default skips < 200 and >= 300.
+    ShouldSkipStatus = status => status is < 200 or >= 300,
+
+    // Paths excluded from ETag processing (prefix match).
+    ExcludePaths = ["/healthz", "/openapi", "/scalar", "/_sharkable"],
+};
+```
+
+## Error Localization
+
+Sharkable supports pluggable error message translation via `Accept-Language` header:
+
+```csharp
+opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
+opt.DefaultCulture = "en"; // fallback when no Accept-Language header
+```
+
+Implement `IErrorLocalizer` to translate error keys into the target culture:
+
 ## Auto UnifiedResult Wrapping (opt-in)
 
 When enabled, endpoint return values that are not `IResult` are automatically wrapped in `UnifiedResult<T>`.

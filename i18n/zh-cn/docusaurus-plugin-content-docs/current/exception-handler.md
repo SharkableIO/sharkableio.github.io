@@ -55,6 +55,79 @@ app.UseShark(opt =>
 });
 ```
 
+## ProblemDetails（RFC 7807）
+
+Sharkable 支持 RFC 7807 ProblemDetails 作为备选错误响应格式。一行启用：
+
+```csharp
+opt.UseProblemDetails = true;
+```
+
+启用后，所有错误响应从统一结果封包切换为 `application/problem+json`：
+
+```json
+{
+  "type": "https://httpstatuses.com/404",
+  "title": "Not Found",
+  "status": 404,
+  "detail": "user not found",
+  "instance": "/api/users/42",
+  "traceId": "c8a0f6e4-9b2d-4f1a-b3c7-2e5d8a1f0b6c"
+}
+```
+
+### 自定义 ProblemDetails 字段
+
+`type` URI 和 `title` 可通过工厂委托自定义：
+
+```csharp
+opt.ProblemDetailsTypeFactory = status => $"https://example.com/errors/{status}";
+opt.ProblemDetailsTitleFactory = status => status switch
+{
+    400 => "Bad Request",
+    404 => "Not Found",
+    _ => "Error"
+};
+```
+
+## ETag / 304 Not Modified
+
+Sharkable 提供可选的 GET/HEAD 响应的 ETag 支持：
+
+```csharp
+opt.EnableETag = true;
+```
+
+### ETag 配置
+
+```csharp
+opt.ETagOptions = new ETagOptions
+{
+    // 可被 ETag 缓存的 HTTP 方法。默认：GET、HEAD
+    CacheableMethods = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "GET", "HEAD" },
+
+    // ETag 响应中的 Cache-Control 头。默认："public, max-age=0, must-revalidate"
+    CacheControlHeader = "public, max-age=3600",
+
+    // 判断哪些状态码应跳过的谓词。默认跳过 < 200 和 >= 300
+    ShouldSkipStatus = status => status is < 200 or >= 300,
+
+    // 排除路径（前缀匹配）
+    ExcludePaths = ["/healthz", "/openapi", "/scalar", "/_sharkable"],
+};
+```
+
+## 错误本地化
+
+Sharkable 支持通过 `Accept-Language` 头实现可插拔的错误消息翻译：
+
+```csharp
+opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
+opt.DefaultCulture = "en"; // 当没有 Accept-Language 头时的默认语言
+```
+
+实现 `IErrorLocalizer` 接口将错误键翻译为目标语言。
+
 ## 自动 UnifiedResult 包装（可选）
 
 开启后，返回值不是 `IResult` 的端点会被自动包装为 `UnifiedResult<T>`。

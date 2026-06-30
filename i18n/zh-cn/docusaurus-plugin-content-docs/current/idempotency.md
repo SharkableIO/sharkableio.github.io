@@ -75,6 +75,12 @@ opt.ConfigureIdempotency(o =>
     // 头名称（一般无需修改）
     o.HeaderName = "Idempotency-Key";
     o.ReplayedHeaderName = "X-Idempotent-Replayed";
+
+    // Retry-After 响应头值（秒）。默认 1。
+    o.RetryAfterSeconds = 1;
+
+    // 哪些状态码应被缓存。默认：2xx-4xx（不含 429）。
+    o.ShouldCacheStatus = status => status >= 200 && status < 500 && status != 429;
 });
 ```
 

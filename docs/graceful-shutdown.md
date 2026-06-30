@@ -38,6 +38,12 @@ opt.ConfigureGracefulShutdown(g =>
 {
     // Maximum time to wait for in-flight requests. Default: 30s.
     g.DrainTimeout = TimeSpan.FromSeconds(15);
+
+    // HTTP status code returned during shutdown. Default: 503.
+    g.ShutdownStatusCode = 503;
+
+    // Polling interval for drain loop. Default: 100ms.
+    g.DrainPollingInterval = TimeSpan.FromMilliseconds(100);
 });
 ```
 

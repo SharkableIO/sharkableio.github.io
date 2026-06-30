@@ -72,6 +72,12 @@ opt.ConfigureIdempotency(o =>
     // Header names (rarely changed).
     o.HeaderName = "Idempotency-Key";
     o.ReplayedHeaderName = "X-Idempotent-Replayed";
+
+    // Retry-After header value (seconds). Default: 1.
+    o.RetryAfterSeconds = 1;
+
+    // Predicate for which status codes should be cached. Default: 2xx-4xx except 429.
+    o.ShouldCacheStatus = status => status >= 200 && status < 500 && status != 429;
 });
 ```
 

@@ -86,7 +86,20 @@ opt.ConfigureTracing(t =>
     // Service name reported in traces. Default: entry assembly name.
     t.ServiceName = "order-api";
 
+    // ActivitySource name for OpenTelemetry. Default: "Sharkable".
+    t.ActivitySourceName = "Sharkable";
+
     // Custom exporter (optional). Default: no-op (OTel SDK hooks automatically).
     t.Exporter = new MyCustomExporter();
 });
+```
+
+The `ActivitySource` name is used when configuring OpenTelemetry:
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithTracing(t => t
+        .AddSource("Sharkable")          // matches ActivitySourceName
+        .AddConsoleExporter()
+    );
 ```

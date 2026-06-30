@@ -43,6 +43,9 @@ opt.ConfigureProfiler(p =>
 
     // Max slow requests to track. Default: 20
     p.TopSlowRequests = 10;
+
+    // Max ring buffer entries. Default: 1000
+    p.MaxEntries = 1000;
 });
 ```
 

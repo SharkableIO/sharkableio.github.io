@@ -42,6 +42,12 @@ opt.ConfigureGracefulShutdown(g =>
 {
     // 等待进行中请求的最大时长。默认 30s。
     g.DrainTimeout = TimeSpan.FromSeconds(15);
+
+    // 关闭期间返回的 HTTP 状态码。默认 503。
+    g.ShutdownStatusCode = 503;
+
+    // 排空轮询间隔。默认 100ms。
+    g.DrainPollingInterval = TimeSpan.FromMilliseconds(100);
 });
 ```
 

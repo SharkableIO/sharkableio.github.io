@@ -16,7 +16,7 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-Clients send `X-Api-Key` header. Valid keys pass through; invalid/missing keys return 401.
+Clients send `X-Api-Key` header by default. The header name is configurable via `opt.ApiKeyHeaderName = "X-App-Key"`. Valid keys pass through; invalid/missing keys return 401.
 
 ## Per-Client Keys with Scopes & Expiry
 

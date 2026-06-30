@@ -180,14 +180,17 @@ opt.ConfigureRateLimiting(o =>
     o.MaxPermitLimit = 500;           // ceiling when idle
     o.AdaptiveCpuHighThreshold = 80;  // reduce permits above this CPU %
     o.AdaptiveCpuLowThreshold = 40;   // increase permits below this CPU %
+    o.AdaptiveGcHighThreshold = 80;   // reduce permits above this GC pressure %
+    o.AdaptiveGcLowThreshold = 50;    // increase permits below this GC pressure %
+    o.AdaptiveReductionDivisor = 10;  // reduce by 1/N each cycle
     o.AdaptiveAdjustmentInterval = TimeSpan.FromSeconds(5);  // recheck interval
 });
 ```
 
 **How it works:**
 - A background monitor samples process CPU + GC every `AdjustmentInterval`
-- **High load** (CPU > `HighThreshold` or GC > 80%): decrements limit by ~10%
-- **Low load** (CPU < `LowThreshold` and GC < 50%): increments limit by ~10%
+- **High load** (CPU > `CpuHighThreshold` or GC > `GcHighThreshold`): decrements limit by ~`BasePermitLimit/ReductionDivisor`
+- **Low load** (CPU < `CpuLowThreshold` and GC < `GcLowThreshold`): increments limit by ~`BasePermitLimit/10`
 - **Moderate load**: drifts toward `BasePermitLimit`
 - Limit is clamped between `MinPermitLimit` and `MaxPermitLimit`
 

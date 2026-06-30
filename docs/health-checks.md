@@ -1,6 +1,6 @@
 # Health Checks
 
-Sharkable maps a `/healthz` endpoint that returns a structured JSON health report via ASP.NET Core's `HealthCheckService`.
+Sharkable maps a `/healthz` endpoint (configurable via `opt.HealthCheckPath = "/health"`) that returns a structured JSON health report via ASP.NET Core's `HealthCheckService`.
 
 ## Quick Start
 
