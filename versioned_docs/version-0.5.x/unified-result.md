@@ -128,6 +128,27 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 ```
 
+## Auto UnifiedResult Wrapping (opt-in)
+
+When enabled via `UseSharkOptions`, endpoint return values that are not `IResult` are automatically wrapped in `UnifiedResult<T>`:
+
+```csharp
+app.UseShark(opt =>
+{
+    opt.EnableAutoWrap = true;
+});
+```
+
+```csharp
+// Before: returns raw string
+app.MapGet("hello", () => "world");
+
+// After (with EnableAutoWrap = true):
+// Response: { "statusCode": 200, "data": "world", ... }
+```
+
+> **Note:** Auto-wrap uses reflection and `MakeGenericType` — it works in AOT mode only if the concrete `UnifiedResult<T>` types are registered via `[JsonSerializable]` in your `JsonSerializerContext`.
+
 ## ProblemDetails (RFC 7807)
 
 Sharkable supports RFC 7807 ProblemDetails as an alternative error response format. Enable with one flag:

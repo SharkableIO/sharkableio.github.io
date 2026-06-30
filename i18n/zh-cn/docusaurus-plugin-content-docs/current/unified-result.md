@@ -132,6 +132,27 @@ builder.Services.ConfigureHttpJsonOptions(options =>
 });
 ```
 
+## 自动 UnifiedResult 包装（可选）
+
+开启后，返回值不是 `IResult` 的端点会被自动包装为 `UnifiedResult<T>`：
+
+```csharp
+app.UseShark(opt =>
+{
+    opt.EnableAutoWrap = true;
+});
+```
+
+```csharp
+// 之前：直接返回字符串
+app.MapGet("hello", () => "world");
+
+// 之后（开启 EnableAutoWrap）：
+// 响应：{ "statusCode": 200, "data": "world", ... }
+```
+
+> **注意：** 自动包装使用反射和 `MakeGenericType` — 在 AOT 模式下只有当你将具体的 `UnifiedResult<T>` 类型通过 `[JsonSerializable]` 注册到 `JsonSerializerContext` 中才能正常工作。
+
 ## ProblemDetails (RFC 7807)
 
 Sharkable 支持 RFC 7807 ProblemDetails 作为替代错误响应格式。一行启用：

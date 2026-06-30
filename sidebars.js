@@ -26,7 +26,7 @@ const sidebars = {
       type: 'category',
       label: 'Error Handling',
       collapsed: true,
-      items: ['exception-handler', 'unified-result'],
+      items: ['exception-handler', 'problem-details', 'error-localization', 'unified-result'],
     },
     {
       type: 'category',
@@ -44,7 +44,7 @@ const sidebars = {
       type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
-      items: ['request-validation', 'output-caching', 'response-compression', 'graceful-shutdown', 'config-validation', 'health-checks'],
+      items: ['request-validation', 'output-caching', 'etag', 'response-compression', 'graceful-shutdown', 'config-validation', 'health-checks'],
     },
     {
       type: 'category',

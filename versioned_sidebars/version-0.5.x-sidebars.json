@@ -29,6 +29,8 @@
       "collapsed": true,
       "items": [
         "exception-handler",
+        "problem-details",
+        "error-localization",
         "unified-result"
       ]
     },
@@ -61,6 +63,7 @@
       "items": [
         "request-validation",
         "output-caching",
+        "etag",
         "response-compression",
         "graceful-shutdown",
         "config-validation",
