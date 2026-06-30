@@ -183,14 +183,17 @@ opt.ConfigureRateLimiting(o =>
     o.MaxPermitLimit = 500;           // 空闲上限
     o.AdaptiveCpuHighThreshold = 80;  // CPU 超过此阈值降低限流
     o.AdaptiveCpuLowThreshold = 40;   // CPU 低于此阈值提升限流
+    o.AdaptiveGcHighThreshold = 80;   // GC 压力超过此阈值降低限流
+    o.AdaptiveGcLowThreshold = 50;    // GC 压力低于此阈值提升限流
+    o.AdaptiveReductionDivisor = 10;  // 每次降低 1/N
     o.AdaptiveAdjustmentInterval = TimeSpan.FromSeconds(5);  // 采样间隔
 });
 ```
 
 **工作原理：**
 - 后台监控器每 `AdjustmentInterval` 采样进程 CPU + GC 数据
-- **高负载**（CPU > `HighThreshold` 或 GC > 80%）：降低 ~10%
-- **低负载**（CPU < `LowThreshold` 且 GC < 50%）：提升 ~10%
+- **高负载**（CPU > `CpuHighThreshold` 或 GC > `GcHighThreshold`）：降低 ~BasePermitLimit/ReductionDivisor
+- **低负载**（CPU < `CpuLowThreshold` 且 GC < `GcLowThreshold`）：提升 ~10%
 - **中等负载**：向 `BasePermitLimit` 靠拢
 - 限流值钳制在 `MinPermitLimit` 和 `MaxPermitLimit` 之间
 

@@ -65,6 +65,42 @@ opt.AuthorizationInterceptorFactory = sp => new MyPermissionInterceptor();
 
 See [Authorization Interceptor](authorization-interceptor) for full usage.
 
+## Authorization Configuration
+
+Sharkable registers ASP.NET Core's authorization services by default (`services.AddAuthorization()`). This ensures that `pipe.UseAuthorization()` works wherever it's invoked. Two options control this behavior:
+
+| Option | Type | Default | Description |
+|--------|------|---------|-------------|
+| `EnableAuthorization` | `bool` | `true` | Set to `false` to skip authorization service registration entirely |
+| `ConfigureAuthorization` | `Action<AuthorizationOptions>?` | `null` | Callback to customize policies, default policy, fallback policy, etc. |
+
+### Custom Authorization Policies
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureJwt("https://your-issuer.com", ["your-api"]);
+
+    opt.ConfigureAuthorization = o =>
+    {
+        o.DefaultPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+
+        o.AddPolicy("admin", p => p.RequireRole("admin"));
+        o.AddPolicy("editor", p => p.RequireRole("editor", "admin"));
+    };
+});
+```
+
+### Disable Authorization
+
+```csharp
+opt.EnableAuthorization = false;
+```
+
+Disabling authorization also suppresses `pipe.UseAuthorization()` in the middleware pipeline. Use this only when your application has no need for ASP.NET Core authorization at all.
+
 ## Integration with API Key
 
 JWT and [API Key](api-key-auth) authentication can coexist. When both are configured, either credential type is accepted.

@@ -99,6 +99,25 @@ builder.Services.AddShark(opt =>
 | ToLower | testuser | `api/testuser/...` |
 | UnChanged | TestUser | `api/TestUser/...` |
 
+### 自定义后缀剥离与版本格式
+
+类名后缀剥离和版本前缀转换均可配置：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    // 从端点组名中剥离常见后缀的正则表达式
+    // 默认移除末尾的 Endpoint/Service/Controller（不区分大小写）
+    opt.GroupNameSuffixPattern = "(endpoint|service|services|controller|controllers|apicontroller)(?=V?\\d*$)";
+
+    // 版本格式：URL 中 V{数字} 的转换方式。默认 V1 -> @1
+    opt.VersionFormatPattern = @"V(\d+)";
+    opt.VersionFormatReplacement = @"@$1";
+});
+```
+
+例如类 `TestServiceV2`，若自定义后缀 pattern 为 `"(api|service)"`，则组名为 `TestV2` → URL 为 `api/test-v2/...`。
+
 ## 旧风格 `[SharkEndpoint]` 端点（AOT 不兼容）
 
 > ⚠️ 基于属性的端点使用运行时反射，**不**支持 Native AOT 发布。请使用 `ISharkEndpoint` 编写兼容 AOT 的代码。

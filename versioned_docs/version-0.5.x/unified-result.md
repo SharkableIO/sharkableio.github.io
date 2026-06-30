@@ -106,7 +106,17 @@ This requires `using Microsoft.OpenApi;` in your Program.cs.
 
 ## AOT support
 
-Register your result type with `[JsonSerializable]` for AOT compilation:
+Sharkable ships a Source Generator that automatically preserves `UnifiedResult<T>` types for all endpoint return values — **no `JsonSerializerContext` needed**:
+
+```csharp
+app.MapGet("/users", () => new UserDto { Name = "Alice" });
+app.MapGet("/orders", () => new OrderDto { Id = 1 });
+// UnifiedResult<UserDto> + UnifiedResult<OrderDto> auto-preserved at compile time
+```
+
+The SG scans all `MapGet/Post/Put/Patch/Delete` delegates, extracts return types, and emits `typeof(UnifiedResult<T>)` references. Combined with the AutoCrud AOT preserver, all entity types and unified result types survive Native AOT trimming without any manual configuration.
+
+For custom `IUnifiedResultFactory` implementations with custom types, register a JSON serializer context:
 
 ```csharp
 [JsonSerializable(typeof(MyResult))]

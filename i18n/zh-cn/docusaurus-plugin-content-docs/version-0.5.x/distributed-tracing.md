@@ -90,7 +90,20 @@ opt.ConfigureTracing(t =>
     // 追踪中上报的服务名。默认：入口程序集名。
     t.ServiceName = "order-api";
 
+    // ActivitySource 名称（用于 OpenTelemetry 注册）。默认："Sharkable"。
+    t.ActivitySourceName = "Sharkable";
+
     // 自定义导出器（可选）。默认：无操作（OTel SDK 自动挂钩）。
     t.Exporter = new MyCustomExporter();
 });
+```
+
+ActivitySource 名称用于 OpenTelemetry 注册：
+
+```csharp
+builder.Services.AddOpenTelemetry()
+    .WithTracing(t => t
+        .AddSource("Sharkable")          // 需与 ActivitySourceName 一致
+        .AddConsoleExporter()
+    );
 ```

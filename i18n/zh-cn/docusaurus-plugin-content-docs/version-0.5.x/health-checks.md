@@ -4,7 +4,7 @@ title: 健康检查
 
 # 健康检查
 
-Sharkable 提供 `/healthz` 端点，通过 ASP.NET Core 的 `HealthCheckService` 返回结构化 JSON 健康报告。
+Sharkable 提供 `/healthz` 端点（可通过 `opt.HealthCheckPath = "/health"` 配置），通过 ASP.NET Core 的 `HealthCheckService` 返回结构化 JSON 健康报告。
 
 ## 快速开始
 

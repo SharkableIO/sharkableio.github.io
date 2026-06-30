@@ -20,7 +20,7 @@ builder.Services.AddShark(opt =>
 });
 ```
 
-客户端发送 `X-Api-Key` 头。有效密钥放行，无效或缺失返回 401。
+客户端默认发送 `X-Api-Key` 头。可通过 `opt.ApiKeyHeaderName = "X-App-Key"` 自定义请求头名称。有效密钥放行，无效或缺失返回 401。
 
 ## 每客户端密钥 + 权限 + 过期
 

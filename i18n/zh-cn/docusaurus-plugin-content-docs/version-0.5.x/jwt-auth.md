@@ -59,6 +59,42 @@ opt.AuthorizationInterceptorFactory = sp => new MyPermissionInterceptor();
 
 详见 [鉴权拦截器](authorization-interceptor)。
 
+## 授权配置
+
+Sharkable 默认注册 ASP.NET Core 的授权服务（`services.AddAuthorization()`），确保 `pipe.UseAuthorization()` 在任何地方调用时都不会因缺少服务而崩溃。两个选项控制此行为：
+
+| 选项 | 类型 | 默认值 | 说明 |
+|--------|------|---------|------|
+| `EnableAuthorization` | `bool` | `true` | 设为 `false` 跳过授权服务注册 |
+| `ConfigureAuthorization` | `Action<AuthorizationOptions>?` | `null` | 自定义策略、默认策略、回退策略等 |
+
+### 自定义授权策略
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureJwt("https://your-issuer.com", ["your-api"]);
+
+    opt.ConfigureAuthorization = o =>
+    {
+        o.DefaultPolicy = new AuthorizationPolicyBuilder()
+            .RequireAuthenticatedUser()
+            .Build();
+
+        o.AddPolicy("admin", p => p.RequireRole("admin"));
+        o.AddPolicy("editor", p => p.RequireRole("editor", "admin"));
+    };
+});
+```
+
+### 禁用授权
+
+```csharp
+opt.EnableAuthorization = false;
+```
+
+禁用授权同时会抑制中间件管道中的 `pipe.UseAuthorization()`。仅当应用完全不需要 ASP.NET Core 授权时使用。
+
 ## 与 API 密钥共存
 
 JWT 和 [API 密钥](api-key-auth) 可以共存。

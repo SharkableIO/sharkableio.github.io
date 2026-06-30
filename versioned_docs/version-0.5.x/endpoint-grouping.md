@@ -95,6 +95,25 @@ builder.Services.AddShark(opt =>
 | ToLower | testuser | `api/testuser/...` |
 | UnChanged | TestUser | `api/TestUser/...` |
 
+### Customizing Suffix Stripping & Version Format
+
+The class name suffix stripping and version prefix conversion are configurable:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    // Regex for stripping common suffixes from endpoint group names.
+    // Default: removes Endpoint/Service/Controller (case-insensitive, at end).
+    opt.GroupNameSuffixPattern = "(endpoint|service|services|controller|controllers|apicontroller)(?=V?\\d*$)";
+
+    // Version format: how V{number} is converted in URLs. Default: V1 -> @1.
+    opt.VersionFormatPattern = @"V(\d+)";
+    opt.VersionFormatReplacement = @"@$1";
+});
+```
+
+For example, a class `TestServiceV2` with custom pattern `"(api|service)"` would produce group `TestV2` → URL `api/test-v2/...` depending on format.
+
 ## Old-style `[SharkEndpoint]` endpoints (deprecated, AOT-incompatible)
 
 > **Deprecated since v0.4.0. Will be removed in v0.5.0.** Attribute-based endpoints use runtime reflection and do **not** work in Native AOT publishing. Migrate to `ISharkEndpoint` immediately.
