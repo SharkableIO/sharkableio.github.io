@@ -25,6 +25,7 @@ For production, implement `IAuthorizationInterceptor` to validate keys against y
 ```csharp
 builder.Services.AddShark(opt =>
 {
+    opt.ApiKeys = null; // disable static list
     opt.AuthorizationInterceptorFactory = sp => new ApiKeyValidator();
 });
 ```
