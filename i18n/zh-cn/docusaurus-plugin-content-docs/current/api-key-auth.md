@@ -29,7 +29,6 @@ builder.Services.AddShark(opt =>
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ApiKeys = null; // 禁用静态列表
     opt.AuthorizationInterceptorFactory = sp => new ApiKeyValidator();
 });
 ```
