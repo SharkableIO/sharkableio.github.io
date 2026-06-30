@@ -132,35 +132,96 @@ builder.Services.AddShark(opt =>
 
 ### Implementing IErrorLocalizer
 
+`IErrorLocalizer` is a single-method interface. You can back it with any data source — resx, JSON, XML, YAML, database, or remote API.
+
+#### Option 1: .resx files (standard .NET approach)
+
+Create `.resx` files per culture under `Resources/`:
+
+```
+Resources/
+├── Messages.resx              (default / invariant)
+├── Messages.zh-CN.resx
+└── Messages.ja.resx
+```
+
+```xml
+<!-- Resources/Messages.zh-CN.resx -->
+<root>
+  <data name="Welcome" xml:space="preserve">
+    <value>欢迎</value>
+  </data>
+  <data name="User_NotFound" xml:space="preserve">
+    <value>用户未找到</value>
+  </data>
+</root>
+```
+
 ```csharp
-public class MyErrorLocalizer : IErrorLocalizer
+public class ResxLocalizer : IErrorLocalizer
 {
-    private readonly Dictionary<string, Dictionary<string, string>> _messages = new()
+    private readonly Assembly _assembly;
+    private readonly string _baseName = "MyApp.Resources.Messages";
+
+    public ResxLocalizer(Assembly assembly) => _assembly = assembly;
+
+    public string Localize(string key, string culture)
     {
-        ["Welcome"] = new()
-        {
-            ["en"] = "Welcome",
-            ["zh-CN"] = "欢迎",
-            ["ja"] = "ようこそ",
-        },
-        ["User_NotFound"] = new()
-        {
-            ["en"] = "User not found",
-            ["zh-CN"] = "用户未找到",
-            ["ja"] = "ユーザーが見つかりません",
-        },
-    };
+        var rm = new ResourceManager(_baseName, _assembly);
+        var value = rm.GetString(key, CultureInfo.GetCultureInfo(culture));
+        return value ?? key;
+    }
+}
+```
+
+#### Option 2: JSON file
+
+```json
+{
+  "Welcome": {
+    "en": "Welcome",
+    "zh-CN": "欢迎",
+    "ja": "ようこそ"
+  },
+  "User_NotFound": {
+    "en": "User not found",
+    "zh-CN": "用户未找到",
+    "ja": "ユーザーが見つかりません"
+  }
+}
+```
+
+```csharp
+public class JsonLocalizer : IErrorLocalizer
+{
+    private readonly Dictionary<string, Dictionary<string, string>> _messages;
+
+    public JsonLocalizer(string jsonPath)
+    {
+        var json = File.ReadAllText(jsonPath);
+        _messages = JsonSerializer.Deserialize<Dictionary<string, Dictionary<string, string>>>(json)
+            ?? [];
+    }
 
     public string Localize(string key, string culture)
     {
         if (_messages.TryGetValue(key, out var cultures) &&
             cultures.TryGetValue(culture, out var message))
             return message;
-
-        return key; // fallback
+        return key;
     }
 }
 ```
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ErrorLocalizerFactory = _ => new JsonLocalizer("Resources/messages.json");
+    opt.DefaultCulture = "en";
+});
+```
+
+> XML and YAML work the same way — parse the file and look up `[key][culture]`. For database or remote API, inject the client via constructor.
 
 ### Using in Your Endpoints
 
