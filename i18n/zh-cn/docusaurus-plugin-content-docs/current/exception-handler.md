@@ -119,14 +119,89 @@ opt.ETagOptions = new ETagOptions
 
 ## 错误本地化
 
-Sharkable 支持通过 `Accept-Language` 头实现可插拔的错误消息翻译：
+Sharkable 支持通过 `Accept-Language` 请求头实现可插拔的错误消息翻译。
+
+### 注册
 
 ```csharp
-opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
-opt.DefaultCulture = "en"; // 当没有 Accept-Language 头时的默认语言
+builder.Services.AddShark(opt =>
+{
+    // 注册自定义本地化实现
+    opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
+
+    // 缺少 Accept-Language 头时的默认语言。默认："en"。
+    opt.DefaultCulture = "zh-CN";
+});
 ```
 
-实现 `IErrorLocalizer` 接口将错误键翻译为目标语言。
+### 实现 IErrorLocalizer
+
+```csharp
+public class MyErrorLocalizer : IErrorLocalizer
+{
+    private readonly Dictionary<string, Dictionary<string, string>> _messages = new()
+    {
+        ["Welcome"] = new()
+        {
+            ["en"] = "Welcome",
+            ["zh-CN"] = "欢迎",
+            ["ja"] = "ようこそ",
+        },
+        ["User_NotFound"] = new()
+        {
+            ["en"] = "User not found",
+            ["zh-CN"] = "用户未找到",
+            ["ja"] = "ユーザーが見つかりません",
+        },
+    };
+
+    public string Localize(string key, string culture)
+    {
+        if (_messages.TryGetValue(key, out var cultures) &&
+            cultures.TryGetValue(culture, out var message))
+            return message;
+
+        return key; // 回退到 key 本身
+    }
+}
+```
+
+### 在端点中使用
+
+注入 `HttpContext` 并调用 `.Localize()` 扩展方法：
+
+```csharp
+app.MapGet("/hello", (HttpContext ctx) =>
+{
+    var msg = ctx.Localize("Welcome");
+    return Results.Ok(new { message = msg });
+});
+```
+
+客户端发送 `Accept-Language: zh-CN` → `{ "message": "欢迎" }`。
+
+`.Localize()` 扩展方法会自动从 `Accept-Language` 头解析语言，不需要手动解析。
+
+### 中间件集成
+
+已支持本地化的框架中间件：
+- **限流**（429）— key：`"RateLimitExceeded"`
+- **优雅关闭**（503）— key：`"ServerShuttingDown"`
+
+自定义中间件中也可以使用相同的模式：
+
+```csharp
+app.Use(async (ctx, next) =>
+{
+    if (someCondition)
+    {
+        ctx.Response.StatusCode = 400;
+        await ctx.Response.WriteAsync(ctx.Localize("CustomError"));
+        return;
+    }
+    await next();
+});
+```
 
 ## 自动 UnifiedResult 包装（可选）
 

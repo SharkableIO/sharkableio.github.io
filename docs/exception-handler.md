@@ -115,14 +115,89 @@ opt.ETagOptions = new ETagOptions
 
 ## Error Localization
 
-Sharkable supports pluggable error message translation via `Accept-Language` header:
+Sharkable supports pluggable error message translation via the `Accept-Language` request header.
+
+### Registration
 
 ```csharp
-opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
-opt.DefaultCulture = "en"; // fallback when no Accept-Language header
+builder.Services.AddShark(opt =>
+{
+    // Register a custom localizer implementation
+    opt.ErrorLocalizerFactory = sp => new MyErrorLocalizer();
+
+    // Default culture when Accept-Language header is missing. Default: "en".
+    opt.DefaultCulture = "zh-CN";
+});
 ```
 
-Implement `IErrorLocalizer` to translate error keys into the target culture:
+### Implementing IErrorLocalizer
+
+```csharp
+public class MyErrorLocalizer : IErrorLocalizer
+{
+    private readonly Dictionary<string, Dictionary<string, string>> _messages = new()
+    {
+        ["Welcome"] = new()
+        {
+            ["en"] = "Welcome",
+            ["zh-CN"] = "欢迎",
+            ["ja"] = "ようこそ",
+        },
+        ["User_NotFound"] = new()
+        {
+            ["en"] = "User not found",
+            ["zh-CN"] = "用户未找到",
+            ["ja"] = "ユーザーが見つかりません",
+        },
+    };
+
+    public string Localize(string key, string culture)
+    {
+        if (_messages.TryGetValue(key, out var cultures) &&
+            cultures.TryGetValue(culture, out var message))
+            return message;
+
+        return key; // fallback
+    }
+}
+```
+
+### Using in Your Endpoints
+
+Inject `HttpContext` and call the `.Localize()` extension method:
+
+```csharp
+app.MapGet("/hello", (HttpContext ctx) =>
+{
+    var msg = ctx.Localize("Welcome");
+    return Results.Ok(new { message = msg });
+});
+```
+
+Client sends `Accept-Language: zh-CN` → `{ "message": "欢迎" }`.
+
+The `.Localize()` extension resolves the culture from the `Accept-Language` header automatically. No manual header parsing needed.
+
+### Middleware Integration
+
+The framework middlewares that support localization:
+- **Rate limiting** (429) — key: `"RateLimitExceeded"`
+- **Graceful shutdown** (503) — key: `"ServerShuttingDown"`
+
+Custom error responses from your own middleware can use the same pattern:
+
+```csharp
+app.Use(async (ctx, next) =>
+{
+    if (someCondition)
+    {
+        ctx.Response.StatusCode = 400;
+        await ctx.Response.WriteAsync(ctx.Localize("CustomError"));
+        return;
+    }
+    await next();
+});
+```
 
 ## Auto UnifiedResult Wrapping (opt-in)
 
