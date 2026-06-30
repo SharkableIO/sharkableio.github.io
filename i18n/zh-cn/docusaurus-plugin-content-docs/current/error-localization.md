@@ -128,6 +128,35 @@ app.MapGet("/hello", (HttpContext ctx) =>
 
 `.Localize()` 扩展方法会自动从 `Accept-Language` 头解析语言，不需要手动解析。
 
+### 格式化参数
+
+如果翻译文本包含 `{0}`、`{1}` 占位符，直接传参即可：
+
+```json
+{
+  "WelcomeUser": {
+    "en": "Welcome, {0}!",
+    "zh-CN": "欢迎你，{0}！"
+  },
+  "OrderCreated": {
+    "en": "Order #{0} created, total: ${1:F2}",
+    "zh-CN": "订单 #{0} 已创建，金额：${1:F2}"
+  }
+}
+```
+
+```csharp
+app.MapGet("/hello/{name}", (HttpContext ctx, string name) =>
+{
+    var msg = ctx.Localize("WelcomeUser", name);
+    return Results.Ok(new { message = msg });
+});
+```
+
+客户端 `GET /hello/Alice` 带 `Accept-Language: zh-CN` → `{ "message": "欢迎你，Alice！" }`。
+
+不传参时返回纯文本，无格式化开销。
+
 ## 中间件集成
 
 已支持本地化的框架中间件：

@@ -124,6 +124,35 @@ Client sends `Accept-Language: zh-CN` → `{ "message": "欢迎" }`.
 
 The `.Localize()` extension resolves the culture from the `Accept-Language` header automatically. No manual header parsing needed.
 
+### Format Arguments
+
+For messages with placeholders, use `{0}`, `{1}` in your translation and pass arguments:
+
+```json
+{
+  "WelcomeUser": {
+    "en": "Welcome, {0}!",
+    "zh-CN": "欢迎你，{0}！"
+  },
+  "OrderCreated": {
+    "en": "Order #{0} created, total: ${1:F2}",
+    "zh-CN": "订单 #{0} 已创建，金额：${1:F2}"
+  }
+}
+```
+
+```csharp
+app.MapGet("/hello/{name}", (HttpContext ctx, string name) =>
+{
+    var msg = ctx.Localize("WelcomeUser", name);
+    return Results.Ok(new { message = msg });
+});
+```
+
+Client: `GET /hello/Alice` with `Accept-Language: zh-CN` → `{ "message": "欢迎你，Alice！" }`.
+
+If no arguments are passed, the plain localized string is returned — no formatting overhead.
+
 ## Middleware Integration
 
 The framework middlewares that support localization:
