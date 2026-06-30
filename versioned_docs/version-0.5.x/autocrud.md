@@ -88,7 +88,22 @@ GET /api/product?page=1&pageSize=20
 }
 ```
 
-`pageSize` is capped at 100. Unknown fields in query params are silently ignored.
+Default page size is 20; maximum is 100. Both are configurable via `SqlSugarOptions`:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureAutoCrud(s =>
+    {
+        s.DbType = DbType.Sqlite;
+        s.ConnectionString = "DataSource=app.db";
+        s.MaxPageSize = 200;
+        s.DefaultPageSize = 50;
+    });
+});
+```
+
+Unknown fields in query params are silently ignored.
 
 ## Suppress Operations
 
@@ -217,6 +232,26 @@ public class Product : ISoftDeletable
 | Delete | Hard delete | `UPDATE SET IsDeleted = 1` (soft) |
 
 The `IsDeleted` property is detected by name (case-insensitive). No attributes, no configuration — just add the interface.
+
+The field name is configurable via `SqlSugarOptions` if your entity uses a different name:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureAutoCrud(s =>
+    {
+        s.SoftDeleteFieldName = "IsRemoved";
+    });
+});
+```
+
+```csharp
+public class Product : ISoftDeletable
+{
+    public int Id { get; set; }
+    public bool IsRemoved { get; set; }  // custom field name
+}
+```
 
 ## AOT Support (Zero rd.xml)
 

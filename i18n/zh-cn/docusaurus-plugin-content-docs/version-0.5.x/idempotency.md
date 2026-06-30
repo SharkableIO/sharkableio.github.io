@@ -22,6 +22,16 @@ builder.Services.AddShark(opt =>
 ```
 
 [GitHub → Sharkable.Cache.Redis](https://github.com/SharkableIO/Sharkable.Cache.Redis)
+
+### 配置
+
+```csharp
+services.AddSharkableRedis("localhost:6379", opt =>
+{
+    opt.IdempotencyKeyPrefix = "myapp:idempotency:";
+    opt.Database = 1;
+});
+```
 :::
 
 ## 快速开始

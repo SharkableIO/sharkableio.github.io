@@ -92,7 +92,22 @@ GET /api/product?page=1&pageSize=20
 }
 ```
 
-`pageSize` 上限 100。不认识的字段自动忽略。
+默认每页 20 条，上限 100 条。可通过 `SqlSugarOptions` 配置：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureAutoCrud(s =>
+    {
+        s.DbType = DbType.Sqlite;
+        s.ConnectionString = "DataSource=app.db";
+        s.MaxPageSize = 200;
+        s.DefaultPageSize = 50;
+    });
+});
+```
+
+不认识的字段自动忽略。
 
 ## 屏蔽操作
 
@@ -219,6 +234,26 @@ public class Product : ISoftDeletable
 | Delete | 物理删除 | `UPDATE SET IsDeleted = 1`（软删除） |
 
 `IsDeleted` 属性按名称检测（不区分大小写）。无需特性配置、无需额外代码。
+
+可通过 `SqlSugarOptions` 自定义字段名：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureAutoCrud(s =>
+    {
+        s.SoftDeleteFieldName = "IsRemoved";
+    });
+});
+```
+
+```csharp
+public class Product : ISoftDeletable
+{
+    public int Id { get; set; }
+    public bool IsRemoved { get; set; }  // 自定义字段名
+}
+```
 
 ## AOT 支持（零 rd.xml）
 

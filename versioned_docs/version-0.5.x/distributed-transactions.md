@@ -78,6 +78,16 @@ services.AddSharkableRedis("localhost:6379");
 // ISagaStore auto-swaps to RedisSagaStore with distributed locking
 ```
 
+With custom key prefixes:
+
+```csharp
+services.AddSharkableRedis("localhost:6379", opt =>
+{
+    opt.SagaLockPrefix = "myapp:saga:lock:";
+    opt.SagaProgressPrefix = "myapp:saga:progress:";
+});
+```
+
 Or implement `ISagaStore` with your own database:
 
 ```csharp

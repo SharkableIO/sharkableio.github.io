@@ -82,6 +82,16 @@ services.AddSharkableRedis("localhost:6379");
 // ISagaStore 自动切换为 RedisSagaStore（含分布式锁）
 ```
 
+自定义 key 前缀：
+
+```csharp
+services.AddSharkableRedis("localhost:6379", opt =>
+{
+    opt.SagaLockPrefix = "myapp:saga:lock:";
+    opt.SagaProgressPrefix = "myapp:saga:progress:";
+});
+```
+
 或自己实现 `ISagaStore`：
 
 ```csharp
