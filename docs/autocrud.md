@@ -266,6 +266,76 @@ dotnet publish -c Release -r linux-x64 --self-contained
 
 Works with any `Sharkable.AutoCrud.SqlSugar` version that depends on Sharkable ≥ 0.4.1.
 
+## Field allowlist with [CrudAllow]
+
+Starting in **v0.6.0**, AutoCrud no longer accepts every property on a writable entity by default. The `[CrudAllow]` attribute declares exactly which fields `Create` and `Update` are allowed to write — every other property is excluded.
+
+### Why
+
+Before v0.6.0, `InsertableByObject` and `UpdateableByObject` wrote every column the entity contained, allowing mass-assignment of sensitive fields via the JSON body (`IsAdmin=true`, `CreatedBy=admin`, `TenantId=competitor`, `IsDeleted=false` to revive soft-deleted records). See [SHARK-SEC-006 in the security disclosure](./security.md) for the full audit.
+
+### Default-deny in v0.6.0
+
+The semantic flipped from default-allow to default-deny:
+
+| Version | Property without `[CrudAllow]` |
+|---------|--------------------------------|
+| ≤ 0.5.x | included in Insertable / Updateable |
+| ≥ 0.6.0 | excluded — never written by AutoCrud |
+
+The primary key is always excluded (URL-bound on PUT, DB-generated on POST). The configured soft-delete column (`SqlSugarOptions.SoftDeleteFieldName`, default `"IsDeleted"`) is **also** excluded even when `[CrudAllow]` is present, so an attacker cannot revive soft-deleted rows by sending the field in a PUT body. Honors `[SugarColumn(ColumnName = "...")]` renames.
+
+### Marking writable fields
+
+```csharp
+public class Product : IAutoCrudEntity<Product>
+{
+    [SugarColumn(IsPrimaryKey = true)]
+    public int Id { get; set; }
+
+    [CrudAllow]
+    public string Name { get; set; } = "";
+
+    [CrudAllow]
+    public decimal Price { get; set; }
+
+    public DateTime CreatedAt { get; set; }   // server-set, never writable from body
+}
+```
+
+Only `Name` and `Price` end up in the generated `Insertable.IgnoreColumns` / `Updateable.UpdateColumns` allow-list. Apply `[CrudAllow]` to any other field the endpoint should let clients set.
+
+### Fail-closed at startup
+
+If `Create` or `Update` is enabled on an entity with **zero** `[CrudAllow]` properties, route generation throws `InvalidOperationException` at startup — not silently expose a no-write endpoint:
+
+```
+System.InvalidOperationException: ProductEntity has Create|Update enabled but no properties
+marked with [CrudAllow]. Mark every field that should be writable on POST/PUT — or disable
+Create/Update via CrudOperations. See https://sharkableio.github.io/docs/autocrud#field-allowlist-with-crudallow
+```
+
+### POST and PUT return the persisted row
+
+`POST /` and `PUT /{id}` now re-read the row from the database and return that — not the user-controlled request body. Server-side defaults (timestamps, identity-generated PK, server-set soft-delete state) are visible to the client. If the response JSON doesn't match what you sent in, the server overwrote it deliberately.
+
+### Migration checklist
+
+For every `IAutoCrudEntity<T>` that uses `Create` or `Update`:
+
+1. **Audit every writable column** — is the field intended to be set by the client, or server-managed?
+2. **Add `[CrudAllow]`** to client-settable fields. Leave server-set fields (`CreatedAt`, audit columns, etc.) unmarked.
+3. **Build and start the app**. If `InvalidOperationException` fires at startup with your entity name, you missed a field or a `Create|Update` endpoint.
+4. **If a field should genuinely not be writable**, remove `Create` / `Update` from `AllowedOperations`:
+
+   ```csharp
+   CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
+       CrudOperations.List | CrudOperations.Get | CrudOperations.Delete;
+   ```
+5. **Smoke-test POST/PUT** against the database — confirm that omitted fields stay at their server-side defaults and the response JSON shows the persisted row, not the request body.
+
+Full audit context: [SHARK-SEC-006 in the security disclosure](./security.md).
+
 ## Architecture
 
 - **Sharkable core** provides `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator` + `FilterOperator`
