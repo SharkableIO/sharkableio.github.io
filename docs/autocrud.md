@@ -198,15 +198,15 @@ fetch(`/api/product?${params}`);
 
 ## Health Check
 
-When `EnableHealthChecks = true`, SqlSugar connectivity is automatically checked via `/healthz`:
+When `EnableHealthChecks = true`, SqlSugar connectivity is automatically checked via `/healthz`. The description and payload are intentionally generic — database type and exception messages are logged for operators only, never surfaced on the public endpoint (SHARK-SEC-026):
 
 ```json
 {
   "checks": {
     "SqlSugar": {
       "status": "healthy",
-      "description": "SqlSugar connected in 3ms",
-      "data": { "latencyMs": 3, "dbType": "Sqlite" }
+      "description": "Database reachable",
+      "data": { "latencyMs": 3 }
     }
   }
 }

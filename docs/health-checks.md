@@ -77,15 +77,18 @@ builder.Services.AddShark(opt =>
 
 ## NuGet Plugin Health Checks
 
-Plugins auto-register health checks via DI. For example, `Sharkable.Cache.Redis` provides `RedisHealthCheck`:
+Plugin health checks are opt-in. For example, `Sharkable.Cache.Redis` exposes `RedisHealthCheck` — but you must explicitly call `UseSharkableRedisHealthCheck()` to surface it on `/healthz` (SHARK-SEC-021). Simply calling `AddSharkableRedis` registers the implementation in DI without wiring it into the public health endpoint:
 
 ```csharp
-// Sharkable.Cache.Redis registers its health check automatically
+// Step 1: register the Redis stores (idempotency, rate limiting, saga, cron)
 services.AddSharkableRedis("localhost:6379");
-// Redis connectivity now appears in /healthz
+
+// Step 2: opt in to surfacing the Redis health check on /healthz
+services.UseSharkableRedisHealthCheck();
+// Redis connectivity now appears in /healthz under name "redis", tag "ready"
 ```
 
-Plugins simply register their `IHealthCheck` implementations in DI before `AddShark()`:
+Other plugins (e.g. `Sharkable.AutoCrud.SqlSugar`) register their `IHealthCheck` automatically and it surfaces once `services.AddHealthChecks()` is part of the host. Internally that looks like:
 
 ```csharp
 // Inside a NuGet plugin extension method:
@@ -93,7 +96,7 @@ services.TryAddEnumerable(
     ServiceDescriptor.Singleton<IHealthCheck, SqlSugarHealthCheck>());
 ```
 
-`HealthCheckService` auto-discovers all `IHealthCheck` registrations at runtime — no additional hook needed.
+`HealthCheckService` auto-discovers all `IHealthCheck` registrations that have been wired into a health-check builder. If a plugin requires an explicit opt-in step, the plugin's docs will say so.
 
 ## Status Codes
 
