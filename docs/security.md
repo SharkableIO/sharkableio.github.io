@@ -21,6 +21,7 @@ This page tracks the security hardening work delivered across Sharkable core, `S
 | [SHARK-SEC-015](#shark-sec-015) | Require API key on profiler endpoint `/_sharkable/profiler` by default; return 404 if no API keys configured; cap `top` slow-requests surface at 50 |
 | [SHARK-SEC-016](#shark-sec-016) | Require API key on cron admin endpoint `/_sharkable/jobs`; redact `LastError` field to its first 100 characters + `...` to prevent business-logic leakage |
 | [SHARK-SEC-017](#shark-sec-017) | **BREAKING** — Make `CronScheduler.Register` async; `ICronScheduler.Register` replaced by `RegisterAsync` returning `Task` — eliminate sync-over-async deadlock risk with distributed stores |
+| [SHARK-SEC-028](#shark-sec-028) | Pin `Microsoft.OpenApi` to 2.7.5 — suppress NU1903 (CVE-2026-49451, circular schema stack overflow) |
 
 ## Plugin: `Sharkable.Cache.Redis`
 

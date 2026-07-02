@@ -5,13 +5,13 @@ title: 快速开始
 从 NuGet 添加包（需要 .NET 10+）：
 
 ```bash
-dotnet add package Sharkable --version 0.5.4
+dotnet add package Sharkable --version 0.5.5
 ```
 
 或使用包引用：
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.5.4" />
+<PackageReference Include="Sharkable" Version="0.5.5" />
 ```
 
 在项目中添加引用：
