@@ -67,11 +67,12 @@ See [Authorization Interceptor](authorization-interceptor) for full usage.
 
 ## Authorization Configuration
 
-Sharkable registers ASP.NET Core's authorization services by default (`services.AddAuthorization()`). This ensures that `pipe.UseAuthorization()` works wherever it's invoked. Two options control this behavior:
+Sharkable registers ASP.NET Core's authorization services by default (`services.AddAuthorization()`). This ensures that `pipe.UseAuthorization()` works wherever it's invoked. Three options control this behavior:
 
 | Option | Type | Default | Description |
 |--------|------|---------|-------------|
 | `EnableAuthorization` | `bool` | `true` | Set to `false` to skip authorization service registration entirely |
+| `RequireAuthenticatedByDefault` | `bool` | `false` | When `true`, auto-injects `[Authorize]` metadata on every endpoint (equivalent to calling `.RequireAuthorization()` on each). Endpoints with existing `IAuthorizeData` or `IAllowAnonymous` are skipped. |
 | `ConfigureAuthorization` | `Action<AuthorizationOptions>?` | `null` | Callback to customize policies, default policy, fallback policy, etc. |
 
 ### Custom Authorization Policies
@@ -99,7 +100,7 @@ builder.Services.AddShark(opt =>
 opt.EnableAuthorization = false;
 ```
 
-Disabling authorization also suppresses `pipe.UseAuthorization()` in the middleware pipeline. Use this only when your application has no need for ASP.NET Core authorization at all.
+Disabling authorization (`EnableAuthorization = false`) skips both `services.AddAuthorization()` and `app.UseAuthorization()`. Use this only when your application has no need for ASP.NET Core authorization at all.
 
 ## Integration with API Key
 

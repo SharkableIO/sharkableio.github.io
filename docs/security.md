@@ -14,7 +14,7 @@ This page tracks the security hardening work delivered across Sharkable core, `S
 | [SHARK-SEC-008](#shark-sec-008) | Use `CryptographicOperations.FixedTimeEquals` for API key comparison — prevent timing oracle |
 | [SHARK-SEC-009](#shark-sec-009) | Gate `ScalarJwtToken` / `ScalarApiKeyValue` to `IHostEnvironment.IsDevelopment()` — prevent token leakage to public `/scalar/v1` UI |
 | [SHARK-SEC-010](#shark-sec-010) | Implement `AuditTrailMiddleware` header redaction per `RedactHeaders` list — credential-bearing headers (`Authorization`, `X-Api-Key`, `Cookie` by default) have their values replaced with `***` in audit log output |
-| [SHARK-SEC-011](#shark-sec-011) | Add `SharkOption.RequireAuthenticatedByDefault` opt-in flag — enforce auth on framework endpoints via fallback policy |
+| [SHARK-SEC-011](#shark-sec-011) | Add `SharkOption.RequireAuthenticatedByDefault` opt-in flag — enforce auth on all endpoints via per-endpoint `[Authorize]` metadata injection |
 | [SHARK-SEC-012](#shark-sec-012) | Add `ETagOptions.MaxResponseSize` (default 10 MiB) + counting stream + incremental hashing — prevent OOM via huge response bodies |
 | [SHARK-SEC-013](#shark-sec-013) | Add `IMemoryCache` SizeLimit (100k) + periodic eviction sweep to `MemoryRateLimitStore` — prevent slow-loris DoS via unique path explosion |
 | [SHARK-SEC-014](#shark-sec-014) | Add `IMemoryCache` SizeLimit (10k) + entry.Size tracking to `MemoryIdempotencyStore` — prevent TB-DoS via unique idempotency keys |

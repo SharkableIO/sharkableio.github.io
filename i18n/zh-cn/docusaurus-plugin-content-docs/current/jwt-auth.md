@@ -61,11 +61,12 @@ opt.AuthorizationInterceptorFactory = sp => new MyPermissionInterceptor();
 
 ## 授权配置
 
-Sharkable 默认注册 ASP.NET Core 的授权服务（`services.AddAuthorization()`），确保 `pipe.UseAuthorization()` 在任何地方调用时都不会因缺少服务而崩溃。两个选项控制此行为：
+Sharkable 默认注册 ASP.NET Core 的授权服务（`services.AddAuthorization()`），确保 `pipe.UseAuthorization()` 在任何地方调用时都不会因缺少服务而崩溃。三个选项控制此行为：
 
 | 选项 | 类型 | 默认值 | 说明 |
 |--------|------|---------|------|
 | `EnableAuthorization` | `bool` | `true` | 设为 `false` 跳过授权服务注册 |
+| `RequireAuthenticatedByDefault` | `bool` | `false` | 启用时自动为每个端点注入 `[Authorize]` 元数据（相当于在每个端点上调用 `.RequireAuthorization()`）。已有 `IAuthorizeData` 或 `IAllowAnonymous` 的端点会跳过。 |
 | `ConfigureAuthorization` | `Action<AuthorizationOptions>?` | `null` | 自定义策略、默认策略、回退策略等 |
 
 ### 自定义授权策略
@@ -93,7 +94,7 @@ builder.Services.AddShark(opt =>
 opt.EnableAuthorization = false;
 ```
 
-禁用授权同时会抑制中间件管道中的 `pipe.UseAuthorization()`。仅当应用完全不需要 ASP.NET Core 授权时使用。
+禁用授权（`EnableAuthorization = false`）会同时跳过 `services.AddAuthorization()` 和 `app.UseAuthorization()`。仅当应用完全不需要 ASP.NET Core 授权时使用。
 
 ## 与 API 密钥共存
 
