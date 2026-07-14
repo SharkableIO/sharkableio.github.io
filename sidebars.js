@@ -16,7 +16,7 @@ const sidebars = {
       label: 'Lifecycle',
       collapsed: true,
       link: { type: 'generated-index' },
-      items: ['service-registration'],
+      items: ['service-registration', 'lifecycle-hooks'],
     },
     {
       type: 'category',

@@ -107,13 +107,63 @@ services.TryAddEnumerable(
 | `degraded` | 200 | 部分降级，无失败 |
 | `unhealthy` | 503 | 至少一项失败，或正在关闭 |
 
+## 就绪门控（Readiness Gate）
+
+启动过程中，`/healthz` 在 `UseShark()` 完成所有初始化（中间件、端点、预热、饿汉单例、DI 验证）之前返回 503：
+
+```json
+{
+  "status": "unhealthy",
+  "checks": {
+    "startup": {
+      "status": "unhealthy",
+      "description": "Startup not complete"
+    }
+  },
+  "uptime": "00:00:00",
+  "version": "0.5.7"
+}
+```
+
+`UseShark()` 完成后，就绪门控打开，`/healthz` 开始返回实际的健康检查结果。这确保 Kubernetes 的 `readinessProbe` 在应用完全初始化之前不会路由流量。
+
 ## 优雅关闭集成
 
 配置 [优雅关闭](graceful-shutdown) 后，关闭期间 `/healthz` 返回 503。
 
-## Kubernetes 就绪探针
+## 存活探针（Liveness Probe）
+
+Sharkable 在 `/livez` 映射了一个端点，始终返回 `{"status":"alive"}` 与 HTTP 200——无论健康检查状态、就绪门控或优雅关闭如何：
+
+```json
+{
+  "status": "alive"
+}
+```
+
+使用 `/livez` 作为 Kubernetes `livenessProbe`，以区分进程挂起与单纯的"不健康"：
 
 ```yaml
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+```
+
+存活探针在 `EnableHealthChecks` 为 `true` 时自动启用。
+
+## Kubernetes 探针
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
 readinessProbe:
   httpGet:
     path: /healthz

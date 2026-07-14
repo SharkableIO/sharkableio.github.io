@@ -106,6 +106,26 @@ services.TryAddEnumerable(
 | `degraded` | 200 | Some checks degraded, none failing |
 | `unhealthy` | 503 | At least one check failing, or shutting down |
 
+## Readiness Gate
+
+During startup, `/healthz` returns 503 with `"startup"` check until `UseShark()` completes all wiring (middleware, endpoints, warmup, eager singletons, DI validation):
+
+```json
+{
+  "status": "unhealthy",
+  "checks": {
+    "startup": {
+      "status": "unhealthy",
+      "description": "Startup not complete"
+    }
+  },
+  "uptime": "00:00:00",
+  "version": "0.5.7"
+}
+```
+
+Once `UseShark()` finishes, the readiness gate opens and `/healthz` begins returning actual health check results. This ensures Kubernetes `readinessProbe` does not route traffic before the application is fully initialized.
+
 ## Graceful Shutdown Integration
 
 When [Graceful Shutdown](graceful-shutdown) is configured, `/healthz` returns 503 during shutdown:
@@ -124,9 +144,39 @@ When [Graceful Shutdown](graceful-shutdown) is configured, `/healthz` returns 50
 }
 ```
 
-## Kubernetes Readiness Probe
+## Liveness Probe
+
+Sharkable maps a `/livez` endpoint alongside `/healthz` that always returns `{"status":"alive"}` with HTTP 200 — regardless of health check state, readiness gate, or graceful shutdown:
+
+```json
+{
+  "status": "alive"
+}
+```
+
+Use `/livez` for Kubernetes `livenessProbe` to distinguish a hung process from a merely unhealthy one:
 
 ```yaml
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+```
+
+The liveness probe is enabled automatically when `EnableHealthChecks` is `true`.
+
+## Kubernetes Probes
+
+```yaml
+livenessProbe:
+  httpGet:
+    path: /livez
+    port: 8080
+  initialDelaySeconds: 10
+  periodSeconds: 10
+
 readinessProbe:
   httpGet:
     path: /healthz
