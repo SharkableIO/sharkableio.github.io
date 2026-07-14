@@ -27,16 +27,99 @@ var error = new UnifiedResult<string>(null, "not found", HttpStatusCode.NotFound
 
 ## 扩展方法
 
+`string?`（错误）和 `T?`（数据）上的扩展方法，让你快速返回带 `UnifiedResult<T>` 包裹的 HTTP 响应。
+
+### 数据/错误包装
+
 ```csharp
-// 包装为成功响应
+// 包装数据为 UnifiedResult<T> 返回 200
 return data.AsOkResult();
+// null → Results.Ok(), 非 null → Results.Ok(UnifiedResult<T>)
 
-// 包装为错误请求
-return "invalid input".AsBadRequest();
+// 包装数据为 201
+return data.AsCreated(uri: "/api/items/1");
+// null → 204, 有 uri → Results.Created(), 无 uri → Results.Ok()
 
-// 包装为未授权
-return "token expired".AsUnauthorized();
+// 包装数据为 202
+return data.AsAccepted(uri: "/api/jobs/42");
+// null → 202, 有 uri → Results.Accepted(), 无 uri → 202 + body
 ```
+
+### 错误响应（覆盖 20+ 状态码）
+
+```csharp
+return "错误".AsBadRequest();              // 400
+return "过期".AsUnauthorized();            // 401
+return "禁止".AsForbidden();               // 403
+return "未找到".AsNotFound();               // 404
+return "冲突".AsConflict();                // 409
+return "不允许".AsMethodNotAllowed();       // 405
+return "不可接受".AsNotAcceptable();        // 406
+return "已删除".AsGone();                   // 410
+return "媒体类型不支持".AsUnsupportedMediaType(); // 415
+return "验证失败".AsUnprocessableEntity();  // 422
+return "限流".AsTooManyRequests();          // 429
+return "服务器错误".AsInternalServerError();// 500
+return "未实现".AsNotImplemented();         // 501
+return "网关错误".AsBadGateway();           // 502
+return "服务不可用".AsServiceUnavailable(); // 503
+return "超时".AsGatewayTimeout();           // 504
+```
+
+所有错误扩展方法遵循相同模式——`null` 输入返回裸状态码，非 null 错误包裹为 `UnifiedResult<string>`：
+
+```csharp
+return errorString.AsNotFound();      // { "statusCode": 404, "data": null, "errorMessage": "not found", ... }
+string? nullError = null;
+return nullError.AsNotFound();        // 裸 404，无 body
+```
+
+### 通用自定义状态码
+
+```csharp
+// 任意状态码 + 错误
+return "错误".AsStatus(HttpStatusCode.FailedDependency);
+
+// 任意状态码 + 数据
+return data.AsStatus(HttpStatusCode.ExpectationFailed, errors: "可选");
+```
+
+## 静态工厂方法（`UnifiedResult.*`）
+
+所有扩展方法都有对应的静态工厂，位于非泛型 `UnifiedResult` 类上：
+
+```csharp
+// 2xx 成功
+UnifiedResult.Ok(data);                                        // 200
+UnifiedResult.Created(data, uri: "/items/1");                  // 201
+UnifiedResult.Accepted(data, uri: "/jobs/42");                 // 202
+UnifiedResult.NoContent();                                     // 204
+
+// 4xx 客户端错误
+UnifiedResult.BadRequest("消息");         // 400
+UnifiedResult.Unauthorized();            // 401
+UnifiedResult.Forbidden();               // 403
+UnifiedResult.NotFound("消息");          // 404
+UnifiedResult.MethodNotAllowed("消息");   // 405
+UnifiedResult.NotAcceptable("消息");      // 406
+UnifiedResult.Conflict("消息");          // 409
+UnifiedResult.Gone("消息");              // 410
+UnifiedResult.UnsupportedMediaType("消息"); // 415
+UnifiedResult.UnprocessableEntity("消息"); // 422
+UnifiedResult.TooManyRequests("消息");    // 429
+
+// 5xx 服务端错误
+UnifiedResult.InternalServerError("消息"); // 500
+UnifiedResult.NotImplemented("消息");     // 501
+UnifiedResult.BadGateway("消息");         // 502
+UnifiedResult.ServiceUnavailable("消息"); // 503
+UnifiedResult.GatewayTimeout("消息");     // 504
+
+// 通用自定义状态码
+UnifiedResult.Status(data, HttpStatusCode.FailedDependency, errors: "消息");
+```
+
+静态工厂返回 `IResult`，行为与扩展方法完全一致。
 
 ## 自动包装（EnableAutoWrap）
 

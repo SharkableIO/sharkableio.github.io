@@ -104,6 +104,26 @@ When `AsyncWrite` is `true`:
 
 When `AsyncWrite` is `false` (default), each request is logged synchronously via `ILogger` — the original behavior.
 
+## Log Format Presets
+
+Choose a log output style via `AuditTrailOptions.LogFormat`:
+
+```csharp
+opt.ConfigureAuditTrail(a =>
+{
+    a.LogFormat = AuditTrailFormat.JsonStyle;
+});
+```
+
+| Format | Example Output |
+|--------|---------------|
+| `Default` | `HTTP GET /api/users responded 200 in 45ms [CorrelationId: ...] Headers={...}` |
+| `DotnetLogger` | `GET /api/users => 200 in 45ms [...] Headers={...}` |
+| `JsonStyle` | `{"method":"GET","path":"/api/users","statusCode":200,...}` |
+| `Compact` | `GET /api/users 200 45ms` |
+
+When `Default` is selected, the log output uses structured logging with named placeholders (`{Method}`, `{Path}`, `{StatusCode}`, etc.) for full compatibility with log aggregation tools. Other formats use a single `{Message}` template.
+
 ## AOT Compatibility
 
 The audit trail middleware is fully AOT-compatible. It uses `ILogger<T>` for structured logging with zero reflection on request/response bodies.

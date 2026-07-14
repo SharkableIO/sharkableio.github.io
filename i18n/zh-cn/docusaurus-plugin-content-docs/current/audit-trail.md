@@ -108,6 +108,26 @@ opt.ConfigureAuditTrail(a =>
 
 当 `AsyncWrite` 为 `false`（默认）时，每个请求通过 `ILogger` 同步写入 —— 即原始行为。
 
+## 日志格式预设
+
+通过 `AuditTrailOptions.LogFormat` 选择日志输出风格：
+
+```csharp
+opt.ConfigureAuditTrail(a =>
+{
+    a.LogFormat = AuditTrailFormat.JsonStyle;
+});
+```
+
+| 格式 | 输出示例 |
+|------|----------|
+| `Default` | `HTTP GET /api/users responded 200 in 45ms [CorrelationId: ...] Headers={...}` |
+| `DotnetLogger` | `GET /api/users => 200 in 45ms [...] Headers={...}` |
+| `JsonStyle` | `{"method":"GET","path":"/api/users","statusCode":200,...}` |
+| `Compact` | `GET /api/users 200 45ms` |
+
+选择 `Default` 时，日志输出使用结构化日志的命名占位符（`{Method}`、`{Path}`、`{StatusCode}` 等），便于日志聚合工具处理。其他格式使用单个 `{Message}` 模板。
+
 ## AOT 兼容
 
 审计日志中间件完全 AOT 兼容。它使用 `ILogger<T>` 进行结构化日志记录，不对请求/响应体进行任何反射操作。

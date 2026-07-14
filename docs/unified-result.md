@@ -23,16 +23,99 @@ var error = new UnifiedResult<string>(null, "not found", HttpStatusCode.NotFound
 
 ## Extension methods
 
+Extension methods on `string?` (error-based) and `T?` (data-based) let you return typed HTTP responses with consistent `UnifiedResult<T>` wrapping.
+
+### Data/error wrappers
+
 ```csharp
-// Wrap data as success response
+// Wrap data in UnifiedResult<T> as IResult (200)
 return data.AsOkResult();
+// null → Results.Ok(), non-null → Results.Ok(UnifiedResult<T>)
 
-// Wrap error as bad request
-return "invalid input".AsBadRequest();
+// Wrap data in UnifiedResult<T> with status code (201)
+return data.AsCreated(uri: "/api/items/1");
+// null → 204 No Content, with uri → Results.Created(), no uri → Results.Ok()
 
-// Wrap error as unauthorized
-return "token expired".AsUnauthorized();
+// Wrap data in UnifiedResult<T> with status code (202)
+return data.AsAccepted(uri: "/api/jobs/42");
+// null → 202 No Content, with uri → Results.Accepted(), no uri → 202 + body
 ```
+
+### Error responses (200+ coverage)
+
+```csharp
+return "message".AsBadRequest();          // 400 Bad Request
+return "expired".AsUnauthorized();        // 401 Unauthorized
+return "forbidden".AsForbidden();         // 403 Forbidden
+return "not found".AsNotFound();          // 404 Not Found
+return "conflict".AsConflict();           // 409 Conflict
+return "not allowed".AsMethodNotAllowed();    // 405 Method Not Allowed
+return "not acceptable".AsNotAcceptable();    // 406 Not Acceptable
+return "gone".AsGone();                       // 410 Gone
+return "bad media".AsUnsupportedMediaType();  // 415 Unsupported Media Type
+return "invalid".AsUnprocessableEntity();     // 422 Unprocessable Entity
+return "rate limited".AsTooManyRequests();    // 429 Too Many Requests
+return "server error".AsInternalServerError();// 500 Internal Server Error
+return "not impl".AsNotImplemented();         // 501 Not Implemented
+return "bad gateway".AsBadGateway();          // 502 Bad Gateway
+return "unavailable".AsServiceUnavailable();  // 503 Service Unavailable
+return "timeout".AsGatewayTimeout();          // 504 Gateway Timeout
+```
+
+All error extensions share the same pattern — `null` input returns a bare status response, non-null error wraps it in `UnifiedResult<string>`:
+
+```csharp
+return errorString.AsNotFound();      // { "statusCode": 404, "data": null, "errorMessage": "not found", ... }
+string? nullError = null;
+return nullError.AsNotFound();        // bare 404, no body
+```
+
+### Generic custom status
+
+```csharp
+// Error with arbitrary HttpStatusCode
+return "error".AsStatus(HttpStatusCode.FailedDependency);
+
+// Data with arbitrary HttpStatusCode
+return data.AsStatus(HttpStatusCode.ExpectationFailed, errors: "optional");
+```
+
+## Static factories (`UnifiedResult.*`)
+
+All extension methods above have equivalent static factories on the non-generic `UnifiedResult` class:
+
+```csharp
+// 2xx Success
+UnifiedResult.Ok(data, errors: null);                            // 200
+UnifiedResult.Created(data, uri: "/items/1");                    // 201
+UnifiedResult.Accepted(data, uri: "/jobs/42");                   // 202
+UnifiedResult.NoContent();                                       // 204
+
+// 4xx Client errors
+UnifiedResult.BadRequest("message");          // 400
+UnifiedResult.Unauthorized();                 // 401
+UnifiedResult.Forbidden();                   // 403
+UnifiedResult.NotFound("message");           // 404
+UnifiedResult.MethodNotAllowed("msg");        // 405
+UnifiedResult.NotAcceptable("msg");           // 406
+UnifiedResult.Conflict("message");           // 409
+UnifiedResult.Gone("message");               // 410
+UnifiedResult.UnsupportedMediaType("msg");    // 415
+UnifiedResult.UnprocessableEntity("msg");     // 422
+UnifiedResult.TooManyRequests("msg");         // 429
+
+// 5xx Server errors
+UnifiedResult.InternalServerError("msg");     // 500
+UnifiedResult.NotImplemented("msg");          // 501
+UnifiedResult.BadGateway("msg");              // 502
+UnifiedResult.ServiceUnavailable("msg");      // 503
+UnifiedResult.GatewayTimeout("msg");          // 504
+
+// Generic custom status
+UnifiedResult.Status(data, HttpStatusCode.FailedDependency, errors: "msg");  // arbitrary
+```
+
+Static factories return `IResult`, identical behavior to the extension methods.
 
 ## Auto-wrap with EnableAutoWrap
 
