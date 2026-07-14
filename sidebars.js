@@ -9,7 +9,14 @@ const sidebars = {
       label: 'Getting Started',
       collapsed: false,
       link: { type: 'generated-index' },
-      items: ['quickstart', 'service-registration'],
+      items: ['quickstart'],
+    },
+    {
+      type: 'category',
+      label: 'Lifecycle',
+      collapsed: true,
+      link: { type: 'generated-index' },
+      items: ['service-registration'],
     },
     {
       type: 'category',

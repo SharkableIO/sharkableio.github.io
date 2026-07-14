@@ -7,6 +7,10 @@
     "message": "入门指南",
     "description": "The label for category 'Getting Started' in sidebar 'docs'"
   },
+  "sidebar.docs.category.Lifecycle": {
+    "message": "生命周期",
+    "description": "The label for category 'Lifecycle' in sidebar 'docs'"
+  },
   "sidebar.docs.category.OpenAPI": {
     "message": "OpenAPI",
     "description": "The label for category 'OpenAPI' in sidebar 'docs'"
