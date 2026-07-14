@@ -57,6 +57,19 @@ title: 路线图
 | 18 | **BackgroundService 增强** | 后台任务 | 零 — 自动 |
 | 19 | **ProblemDetails (RFC 7807) 兼容** | 互操作性 | 零 — 自动 |
 
+## Phase 5 — 生命周期 & 启动完整性
+
+| # | 功能 | 价值 | 侵入度 |
+|---|------|------|--------|
+| 20 | **`ConfigureOnStarted` / `ConfigureOnStopped` 回调** — 应用就绪和关闭清理的钩子（预热缓存、关闭连接、刷新缓冲区） | 启动/关闭控制 | 仅配置 |
+| 21 | **独立存活探针 `/livez`** — 始终返回 200 的 k8s liveness 端点，与 `/healthz` readiness 分离 | K8s 原生运维 | 零 — 开启健康检查后自动 |
+| 22 | **启动就绪闸门** — `/healthz` 在所有 `OnStarted` 回调完成前返回 503，防止初始化未完成就接入流量 | 生产安全 | 零 — 内部机制 |
+| 23 | **预热 / 异步初始化** — `IWarmupService` 接口 + `ConfigureWarmup(Func<IServiceProvider, CancellationToken, Task>[])`，在 app 启动后、就绪探针变绿前执行 | 冷启动优化 | 仅配置 |
+| 24 | **启动 DI 验证** — 可选 `ValidateOnStart` 标志，启动时主动解析所有注册的服务，提前捕获缺失的 DI 注册 | 快速失败 | 仅配置 |
+| 25 | **启动横幅** — 在 `UseShark()` 时输出框架版本、已启用功能和关键配置 | 运维 | 零 — 自动 |
+| 26 | **中间件管道注入点** — `app.UseShark(beforeAuth: mw => ..., afterAuth: mw => ...)` 在精确位置插入自定义中间件 | 管道控制 | 仅配置 |
+| 27 | **预创单例** — `[SingletonService(Eager = true)]` 标志，在启动时预先创建单例实例而非首次解析时创建 | 冷启动优化 | 属性选项 |
+
 ## 已排除（高侵入性）
 
 | 功能 | 原因 |
