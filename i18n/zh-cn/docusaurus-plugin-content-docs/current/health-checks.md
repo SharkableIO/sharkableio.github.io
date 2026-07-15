@@ -121,7 +121,7 @@ services.TryAddEnumerable(
     }
   },
   "uptime": "00:00:00",
-  "version": "0.5.7"
+  "version": "0.6.0"
 }
 ```
 

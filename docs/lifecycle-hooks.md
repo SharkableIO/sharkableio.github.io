@@ -8,7 +8,7 @@ When `UseShark()` completes, Sharkable prints a formatted banner to the console 
 
 ```
 ╔══════════════════════════════════════════════╗
-║             Sharkable v0.5.7                 ║
+║             Sharkable v0.6.0                 ║
 ║             Environment: Development          ║
 ║             Started at:  2026-07-15 12:34:56  ║
 ╚══════════════════════════════════════════════╝
