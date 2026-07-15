@@ -18,7 +18,14 @@ Sharkable 提供了多个在应用启动和关闭期间运行的钩子与服务�
 ╚══════════════════════════════════════════════╝
 ```
 
-横幅在 `UseShark()` 结束时始终打印，在所有初始化、预热和验证完成之后。
+横幅在 `UseShark()` 结束时打印，在所有初始化、预热和验证完成之后。设置 `ShowStartupBanner = false` 可禁用：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ShowStartupBanner = false;
+});
+```
 
 ## 应用生命周期钩子
 

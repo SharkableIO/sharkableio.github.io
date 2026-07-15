@@ -14,7 +14,14 @@ When `UseShark()` completes, Sharkable prints a formatted banner to the console 
 ╚══════════════════════════════════════════════╝
 ```
 
-The banner is always printed at the end of `UseShark()`, after all wiring, warmup, and validation complete.
+The banner is printed at the end of `UseShark()`, after all wiring, warmup, and validation complete. Set `ShowStartupBanner = false` to disable:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ShowStartupBanner = false;
+});
+```
 
 ## Application Lifecycle Hooks
 
