@@ -117,19 +117,52 @@ UnifiedResult.Status(data, HttpStatusCode.FailedDependency, errors: "msg");  // 
 
 Static factories return `IResult`, identical behavior to the extension methods.
 
-## Auto-wrap with EnableAutoWrap
+## Auto-wrap (default on)
 
-When `EnableAutoWrap` is enabled, endpoint return values that are not `IResult` are automatically wrapped:
+`EnableAutoWrap` is enabled by default. All plain return values — anything not `IResult` or `IUnifiedResult` — are automatically wrapped in `UnifiedResult<T>`:
 
 ```csharp
-app.UseShark(opt =>
-{
-    opt.EnableAutoWrap = true;
-});
-
+// No configuration needed — auto-wrap is on by default
 app.MapGet("hello", () => "world");
-// Response: { "statusCode": 200, "data": "world", ... }
+// Response: { "statusCode": 200, "data": "world", "errorMessage": null, ... }
+
+app.MapGet("users", (DbContext db) => db.Users.ToList());
+// Response: { "statusCode": 200, "data": [...], ... }
 ```
+
+Handlers that return `IResult` (e.g., `Results.NotFound()`, `UnifiedResult.BadRequest()`, `.AsNotFound()`) are never modified — auto-wrap skips them.
+
+### Disabling auto-wrap
+
+**Globally** — in `AddShark()`:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableAutoWrap = false;
+});
+```
+
+**Per endpoint class** — apply `[SharkDontWrap]` to the `ISharkEndpoint` class:
+
+```csharp
+[SharkDontWrap]
+public class StreamingEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("download", () => new FileStreamResult(...)); // raw response, no wrapping
+    }
+}
+```
+
+**Per route** — use `.DisableAutoWrap()`:
+
+```csharp
+app.MapGet("plain-text", () => "raw string").DisableAutoWrap();
+```
+
+> **Note:** When auto-wrap is disabled, the raw return value is passed through unchanged — ensure your serializer supports the type.
 
 ## Custom result format
 
@@ -210,27 +243,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
 });
 ```
-
-## Auto UnifiedResult Wrapping (opt-in)
-
-When enabled via `UseSharkOptions`, endpoint return values that are not `IResult` are automatically wrapped in `UnifiedResult<T>`:
-
-```csharp
-app.UseShark(opt =>
-{
-    opt.EnableAutoWrap = true;
-});
-```
-
-```csharp
-// Before: returns raw string
-app.MapGet("hello", () => "world");
-
-// After (with EnableAutoWrap = true):
-// Response: { "statusCode": 200, "data": "world", ... }
-```
-
-> **Note:** Auto-wrap uses reflection and `MakeGenericType` — it works in AOT mode only if the concrete `UnifiedResult<T>` types are registered via `[JsonSerializable]` in your `JsonSerializerContext`.
 
 ## ProblemDetails (RFC 7807)
 

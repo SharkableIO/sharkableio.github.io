@@ -121,19 +121,52 @@ UnifiedResult.Status(data, HttpStatusCode.FailedDependency, errors: "消息");
 
 静态工厂返回 `IResult`，行为与扩展方法完全一致。
 
-## 自动包装（EnableAutoWrap）
+## 自动包装（默认开启）
 
-开启后，返回值不是 `IResult` 的端点会被自动包装：
+`EnableAutoWrap` 默认开启。所有普通返回值（非 `IResult` 且非 `IUnifiedResult`）都自动包装为 `UnifiedResult<T>`：
 
 ```csharp
-app.UseShark(opt =>
-{
-    opt.EnableAutoWrap = true;
-});
-
+// 无需任何配置 — 自动包装默认开启
 app.MapGet("hello", () => "world");
-// 响应：{ "statusCode": 200, "data": "world", ... }
+// 响应：{ "statusCode": 200, "data": "world", "errorMessage": null, ... }
+
+app.MapGet("users", (DbContext db) => db.Users.ToList());
+// 响应：{ "statusCode": 200, "data": [...], ... }
 ```
+
+返回 `IResult` 的 handler（如 `Results.NotFound()`、`UnifiedResult.BadRequest()`、`.AsNotFound()`）不会被修改 — 自动包装会跳过它们。
+
+### 关闭自动包装
+
+**全局关闭** — 在 `AddShark()` 中：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableAutoWrap = false;
+});
+```
+
+**按端点类关闭** — 给 `ISharkEndpoint` 类添加 `[SharkDontWrap]`：
+
+```csharp
+[SharkDontWrap]
+public class StreamingEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("download", () => new FileStreamResult(...)); // 原始响应，不包装
+    }
+}
+```
+
+**按路由关闭** — 使用 `.DisableAutoWrap()`：
+
+```csharp
+app.MapGet("plain-text", () => "raw string").DisableAutoWrap();
+```
+
+> **注意：** 关闭自动包装后，原始返回值会原样透传 — 请确保你的序列化器支持该类型。
 
 ## 自定义响应格式
 
@@ -214,27 +247,6 @@ builder.Services.ConfigureHttpJsonOptions(options =>
     options.SerializerOptions.TypeInfoResolverChain.Insert(0, AppJsonContext.Default);
 });
 ```
-
-## 自动 UnifiedResult 包装（可选）
-
-开启后，返回值不是 `IResult` 的端点会被自动包装为 `UnifiedResult<T>`：
-
-```csharp
-app.UseShark(opt =>
-{
-    opt.EnableAutoWrap = true;
-});
-```
-
-```csharp
-// 之前：直接返回字符串
-app.MapGet("hello", () => "world");
-
-// 之后（开启 EnableAutoWrap）：
-// 响应：{ "statusCode": 200, "data": "world", ... }
-```
-
-> **注意：** 自动包装使用反射和 `MakeGenericType` — 在 AOT 模式下只有当你将具体的 `UnifiedResult<T>` 类型通过 `[JsonSerializable]` 注册到 `JsonSerializerContext` 中才能正常工作。
 
 ## ProblemDetails (RFC 7807)
 
