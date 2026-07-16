@@ -1,6 +1,6 @@
 # Service Registration
 
-Sharkable supports attribute-based dependency injection — mark your classes with `[ScopedService]`, `[TransientService]`, or `[SingletonService]` and they are automatically registered at startup.
+Sharkable supports two styles of automatic dependency injection — **attributes** and **marker interfaces**. Both are scanned at startup and register the class for all its business interfaces (and itself if no base class).
 
 ## Available Attributes
 
@@ -9,6 +9,29 @@ Sharkable supports attribute-based dependency injection — mark your classes wi
 | `[ScopedService]` | Scoped | One instance per HTTP request (DbContext, request-scoped caches) |
 | `[TransientService]` | Transient | New instance every injection (lightweight, stateless services) |
 | `[SingletonService]` | Singleton | Single instance for the application lifetime (configuration, caching, thread-safe services) |
+
+## Marker Interfaces (Alternative)
+
+As an alternative to attributes, implement one of three marker interfaces:
+
+| Interface | Lifetime | 
+|-----------|----------|
+| `ISingleton` | Singleton |
+| `IScoped` | Scoped |
+| `ITransient` | Transient |
+
+```csharp
+public class UserService : IUserService, IScoped
+{
+    public Task<User?> GetByIdAsync(int id) => /* ... */;
+}
+```
+
+The marker interface itself is **not** registered as a service type — only the business interfaces, base class, or the class itself are registered.
+
+Classes must implement **exactly one** marker interface. If a class implements multiple (`IScoped` + `ISingleton`), the first match in priority order wins: `ISingleton` > `IScoped` > `ITransient`.
+
+You can mix attributes and marker interfaces in the same project — both styles are scanned independently.
 
 ## Usage
 
@@ -88,15 +111,16 @@ public class UserRepository : BaseRepository
 
 ## Registration Details
 
-Attribute processing happens in `AddCommon()` during `AddShark()`:
+Service registration happens in `AddCommon()` during `AddShark()`:
 
 1. All assemblies collected by Sharkable are scanned for types decorated with `[ScopedService]`, `[TransientService]`, or `[SingletonService]`
-2. For each decorated type, the scanner finds all concrete assignable implementations
-3. Services are registered using `TryAdd()` — if you manually register a service before `AddShark()`, your registration takes precedence
-4. Generic type definitions are resolved automatically — concrete closed-generic types are discovered and registered
+2. Assemblies are also scanned for classes implementing `ISingleton`, `IScoped`, or `ITransient`
+3. For each type, the scanner finds all concrete assignable implementations
+4. Services are registered using `TryAdd()` — if you manually register a service before `AddShark()`, your registration takes precedence
+5. Generic type definitions are resolved automatically — concrete closed-generic types are discovered and registered
 
 ## Validation
 
-- Attributes can be applied to `Interface` or `Class` targets
-- `AllowMultiple` is `false` — a class can only have one lifetime attribute
+- Attributes can be applied to `Interface` or `Class` targets; marker interfaces can only be implemented on classes
+- `AllowMultiple` is `false` for attributes — a class can only have one lifetime attribute. Similarly, prefer implementing exactly one marker interface
 - Registration order within each lifetime group is deterministic but should not be relied upon
