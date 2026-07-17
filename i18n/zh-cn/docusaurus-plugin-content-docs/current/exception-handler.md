@@ -34,6 +34,22 @@ Sharkable 内置了全局异常处理中间件，能将未处理的异常转换�
 
 在开发模式（`ASPNETCORE_ENVIRONMENT=Development`）下，错误信息会包含完整堆栈跟踪。
 
+### 生产环境安全
+
+在生产环境（非 Development）中，错误响应默认返回通用 `"An error occurred."` 消息。真实的 `Exception.Message` 仅通过 `ILogger` 记录在服务端，绝不发送给客户端。如需恢复发送原始消息，设置 `IncludeExceptionMessage = true`：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ExceptionHandlerOptions = new ExceptionHandlerOptions
+    {
+        IncludeExceptionMessage = true
+    };
+});
+```
+
+这可以防止意外泄露深层异常中常见的服务器路径、SQL 查询片段、连接字符串和文件系统路径。
+
 ### 自定义错误映射
 
 ```csharp

@@ -116,3 +116,26 @@ public class CreateOrderStep : ISagaStep
     }
 }
 ```
+
+## AOT 支持
+
+完全 AOT 兼容。无反射、无 `dynamic`。
+
+## 配置
+
+`SagaExecutor` 提供可配置的超时时间：
+
+```csharp
+var executor = new SagaExecutor(store, logger)
+{
+    LockTtl = TimeSpan.FromMinutes(5),                // 分布式锁持续时间
+    LockRenewalInterval = TimeSpan.FromMinutes(1),     // 后台续约间隔
+    CompensationTimeout = TimeSpan.FromSeconds(60),    // 补偿步骤超时
+};
+```
+
+| 属性 | 默认值 | 用途 |
+|---|---|---|
+| `LockTtl` | 5 分钟 | 分布式锁持有时间 |
+| `LockRenewalInterval` | LockTtl/3 | 执行期间锁续约频率 |
+| `CompensationTimeout` | 60 秒 | 整个补偿（回滚）阶段的超时 — 使用独立的 CTS，不与执行 token 关联，确保即使调用方取消，Saga 始终有机会回滚 |

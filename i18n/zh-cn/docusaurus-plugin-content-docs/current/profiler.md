@@ -50,6 +50,10 @@ opt.ConfigureProfiler(p =>
 
     // 环形缓冲区最大记录数。默认：1000
     p.MaxEntries = 1000;
+
+    // 追踪每次请求的内存变化（在请求前后调用 GC.GetTotalMemory）。
+    // 默认关闭 — 高 RPS 下会增加 GC 簿记开销。
+    p.TrackMemory = true;
 });
 ```
 

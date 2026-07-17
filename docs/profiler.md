@@ -46,6 +46,10 @@ opt.ConfigureProfiler(p =>
 
     // Max ring buffer entries. Default: 1000
     p.MaxEntries = 1000;
+
+    // Track per-request memory delta (calls GC.GetTotalMemory before/after).
+    // Disabled by default — adds GC bookkeeping overhead at high RPS.
+    p.TrackMemory = true;
 });
 ```
 

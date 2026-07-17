@@ -30,6 +30,22 @@ Enabled by default when calling `app.UseShark()`. Catches all unhandled exceptio
 
 In development mode (`ASPNETCORE_ENVIRONMENT=Development`), the error message includes the full stack trace.
 
+### Production safety
+
+In production (non-Development), the error response defaults to a generic `"An error occurred."` message. The real `Exception.Message` is logged server-side via `ILogger` but never sent to the client. Set `IncludeExceptionMessage = true` to opt back in to sending the raw message:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ExceptionHandlerOptions = new ExceptionHandlerOptions
+    {
+        IncludeExceptionMessage = true
+    };
+});
+```
+
+This prevents accidental leakage of server paths, SQL query fragments, connection strings, and file-system paths that commonly appear in deep-layer exception messages.
+
 ### Custom error mapping
 
 ```csharp

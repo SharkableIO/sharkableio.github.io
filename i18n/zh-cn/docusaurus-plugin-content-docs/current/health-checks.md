@@ -107,6 +107,26 @@ services.TryAddEnumerable(
 | `degraded` | 200 | 部分降级，无失败 |
 | `unhealthy` | 503 | 至少一项失败，或正在关闭 |
 
+## 详情级别（Detail Level）
+
+通过 `HealthCheckDetailLevel` 控制 `/healthz` 暴露的诊断信息量：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableHealthChecks = true;
+    opt.HealthCheckDetailLevel = HealthCheckDetailLevel.StatusOnly;
+});
+```
+
+| 级别 | 说明 |
+|------|------|
+| `StatusOnly`（非开发环境默认） | 仅返回状态 — 不返回描述、数据或异常信息。**生产环境安全。** |
+| `Description` | 状态 + 检查描述文本 |
+| `Full`（开发环境默认） | 状态 + 描述 + 各检查数据及异常信息 |
+
+开发环境下默认为 `Full`，方便本地调试。其他环境默认为 `StatusOnly` — 防止 `/healthz` 向匿名调用者泄露数据库服务器地址、连接字符串片段和异常详情。
+
 ## 就绪门控（Readiness Gate）
 
 启动过程中，`/healthz` 在 `UseShark()` 完成所有初始化（中间件、端点、预热、饿汉单例、DI 验证）之前返回 503：

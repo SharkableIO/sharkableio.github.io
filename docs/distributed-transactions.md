@@ -116,3 +116,23 @@ public class CreateOrderStep : ISagaStep
 ## AOT Support
 
 Fully AOT-compatible. No reflection, no `dynamic`.
+
+## Configuration
+
+The `SagaExecutor` exposes configurable timeouts:
+
+```csharp
+// Configure via DI registration or instance property
+var executor = new SagaExecutor(store, logger)
+{
+    LockTtl = TimeSpan.FromMinutes(5),                // Distributed lock duration
+    LockRenewalInterval = TimeSpan.FromMinutes(1),     // Background renewal cadence
+    CompensationTimeout = TimeSpan.FromSeconds(60),    // Compensation step timeout
+};
+```
+
+| Property | Default | Purpose |
+|---|---|---|
+| `LockTtl` | 5 min | How long the distributed lock is held |
+| `LockRenewalInterval` | LockTtl/3 | How often the lock is renewed during execution |
+| `CompensationTimeout` | 60 s | Timeout for the entire compensation (rollback) phase — uses a dedicated CTS not linked to the execution token, ensuring the saga always has a chance to roll back even after cancellation |

@@ -106,6 +106,26 @@ services.TryAddEnumerable(
 | `degraded` | 200 | Some checks degraded, none failing |
 | `unhealthy` | 503 | At least one check failing, or shutting down |
 
+## Detail Level
+
+Control how much diagnostic detail `/healthz` exposes via `HealthCheckDetailLevel`:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableHealthChecks = true;
+    opt.HealthCheckDetailLevel = HealthCheckDetailLevel.StatusOnly;
+});
+```
+
+| Level | Description |
+|-------|-------------|
+| `StatusOnly` (default in non-Dev) | Only the status (Healthy/Degraded/Unhealthy) — no descriptions, data, or exception messages. **Safe for production.** |
+| `Description` | Status + check description text. |
+| `Full` (default in Development) | Status + description + per-check data and exception messages. |
+
+In Development mode, `Full` is the default for local debugging. In all other environments it defaults to `StatusOnly` — this prevents `/healthz` from leaking database server addresses, connection-string fragments, and exception details to anonymous callers.
+
 ## Readiness Gate
 
 During startup, `/healthz` returns 503 with `"startup"` check until `UseShark()` completes all wiring (middleware, endpoints, warmup, eager singletons, DI validation):

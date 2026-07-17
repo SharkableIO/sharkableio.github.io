@@ -197,7 +197,30 @@ builder.Services.AddShark(opt =>
 
 The middleware is AOT-safe. No reflection, no `Create()` factories on user types, no `dynamic`. `Sharkable.AotSample` exercises the feature end-to-end at build time.
 
+## Streaming / SSE Endpoints
+
+The idempotency middleware buffers the entire response body in memory for caching and replay. This silently breaks streaming endpoints (SSE, long-polling) — the client receives nothing until the stream ends.
+
+To exclude a specific endpoint class from idempotency handling, apply `[SharkNoIdempotency]`:
+
+```csharp
+[SharkNoIdempotency]
+public class SseEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("events", async (HttpContext ctx) =>
+        {
+            ctx.Response.ContentType = "text/event-stream";
+            // SSE streaming — idempotency middleware passes through without buffering
+        });
+    }
+}
+```
+
+When the middleware sees `[SharkNoIdempotency]` on the endpoint's class, it releases the in-flight slot immediately and passes the request through without buffering. The `Idempotency-Key` header is ignored for that endpoint.
+
 ## Limitations
 
-- **No streaming responses.** Responses > 1 MiB are rejected with 500 and not cached.
+- **No streaming responses.** Responses > 1 MiB are rejected with 500 and not cached. For streaming/SSE endpoints, use `[SharkNoIdempotency]` to pass through without buffering.
 - **Request body fingerprinting.** The fingerprint over the request body requires the body to be readable when the middleware runs. Endpoints that have already consumed the body (e.g., `[FromBody]` model binding without `EnableBuffering` upstream) will produce fingerprints over empty bytes, defeating the 422 check.

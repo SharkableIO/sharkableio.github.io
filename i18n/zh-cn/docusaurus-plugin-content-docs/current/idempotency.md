@@ -200,7 +200,30 @@ builder.Services.AddShark(opt =>
 
 中间件是 AOT 安全的。无反射、无用户类型上的 `Create()` 工厂调用、无 `dynamic`。`Sharkable.AotSample` 在构建期端到端验证该特性。
 
+## 流式 / SSE 端点
+
+幂等中间件将整个响应体缓冲在内存中以进行缓存和重放。这会悄无声息地破坏流式端点（SSE、长轮询）——客户端在流结束前不会收到任何数据。
+
+要在特定端点类上排除幂等处理，应用 `[SharkNoIdempotency]`：
+
+```csharp
+[SharkNoIdempotency]
+public class SseEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapGet("events", async (HttpContext ctx) =>
+        {
+            ctx.Response.ContentType = "text/event-stream";
+            // SSE 流式传输 — 幂等中间件直接放行，不缓冲
+        });
+    }
+}
+```
+
+当中间件在端点类上检测到 `[SharkNoIdempotency]` 时，立即释放进行中槽位，直接传递请求（不缓冲）。该端点的 `Idempotency-Key` 头将被忽略。
+
 ## 已知限制
 
-- **不支持流式响应。** 超过 1 MiB 的响应会被 500 拒绝且不缓存。
+- **不支持流式响应。** 超过 1 MiB 的响应会被 500 拒绝且不缓存。流式/SSE 端点请使用 `[SharkNoIdempotency]` 跳过缓冲。
 - **请求体指纹。** 请求体的指纹计算要求中间件运行时请求体可读。如果端点已经消费过请求体（例如没有上游 `EnableBuffering` 的 `[FromBody]` 模型绑定），指纹会基于空字节计算，422 检查会失效。
