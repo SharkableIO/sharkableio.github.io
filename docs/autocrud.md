@@ -58,7 +58,7 @@ public class Product
 
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
-    // Empty — safe CRUD auto-generated (paginated, no full dump)
+    // No AddRoutes needed — AutoCrud generates all routes automatically
 }
 ```
 
@@ -136,7 +136,7 @@ CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
 
 ## Custom Override
 
-Write your own routes in `AddRoutes()` — they take precedence over auto-generated ones:
+Write your own routes in `AddRoutes()` — they take precedence over auto-generated ones. `AddRoutes` is optional (default no-op):
 
 ```csharp
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>

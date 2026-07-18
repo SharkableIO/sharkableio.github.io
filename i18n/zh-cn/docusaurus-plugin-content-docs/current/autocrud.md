@@ -62,7 +62,7 @@ public class Product
 
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>
 {
-    // 空 — 安全 CRUD 自动生成（分页，无全量 dump）
+    // 无需 AddRoutes — AutoCrud 自动生成所有路由
 }
 ```
 
@@ -140,7 +140,7 @@ CrudOperations IAutoCrudEntity<Product>.AllowedOperations =>
 
 ## 自定义覆盖
 
-在 `AddRoutes()` 中编写自己的路由——优先于自动生成：
+在 `AddRoutes()` 中编写自己的路由——优先于自动生成。`AddRoutes` 为可选（默认空实现）：
 
 ```csharp
 public class ProductEndpoint : ISharkEndpoint, IAutoCrudEntity<Product>

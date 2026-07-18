@@ -1,13 +1,13 @@
 Add the NuGet package (.NET 10+):
 
 ```bash
-dotnet add package Sharkable --version 0.7.2
+dotnet add package Sharkable --version 0.7.3
 ```
 
 Or using package reference:
 
 ```xml
-<PackageReference Include="Sharkable" Version="0.7.2" />
+<PackageReference Include="Sharkable" Version="0.7.3" />
 ```
 
 Add the using directive:
