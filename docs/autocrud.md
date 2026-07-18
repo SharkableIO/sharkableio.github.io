@@ -29,6 +29,8 @@ All of these work with Sharkable.AutoCrud without extra configuration — the ge
 dotnet add package Sharkable.AutoCrud.SqlSugar
 ```
 
+The package implements `ISharkPlugin` and is **auto-discovered** by Sharkable at startup — no manual wiring required. Simply reference the package and configure the database connection.
+
 ### 2. Configure Database
 
 ```csharp

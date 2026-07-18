@@ -130,6 +130,8 @@ When publishing a Sharkable plugin package:
 
 ## Example: Redis Cache Plugin
 
+The `Sharkable.Cache.Redis` package ships with a built-in `RedisCachePlugin` — auto-discovered at startup. Just reference the package:
+
 ```csharp
 namespace Sharkable.Cache.Redis;
 
