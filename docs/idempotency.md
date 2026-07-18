@@ -193,6 +193,25 @@ builder.Services.AddShark(opt =>
 | `services.AddSingleton<IIdempotencyStore, T>()` before `AddShark` | Medium (plugin) |
 | Default `MemoryIdempotencyStore` | Lowest (fallback) |
 
+## Per-Endpoint Opt-In
+
+You can opt individual endpoints into idempotency without setting `EnableIdempotency = true` globally. Apply `[SharkIdempotent]` on the `ISharkEndpoint` class:
+
+```csharp
+[SharkIdempotent(ttlSeconds: 3600)]
+public class PaymentEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapPost("charge", (ChargeRequest req) => Charge(req));
+    }
+}
+```
+
+This requires `ConfigureIdempotency()` to be called (the middleware is registered when options are configured), but the global `EnableIdempotency` flag can remain `false`. Only endpoints decorated with `[SharkIdempotent]` are intercepted.
+
+To explicitly exclude a streaming/SSE endpoint when the class is also decorated with `[SharkIdempotent]`, use `[SharkNoIdempotency]` on the class to opt out.
+
 ## AOT Support
 
 The middleware is AOT-safe. No reflection, no `Create()` factories on user types, no `dynamic`. `Sharkable.AotSample` exercises the feature end-to-end at build time.

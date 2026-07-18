@@ -208,4 +208,30 @@ opt.ConfigureRateLimiting(o =>
 - 限流值钳制在 `MinPermitLimit` 和 `MaxPermitLimit` 之间
 
 
+## 按端点策略
+
+按端点限流策略为特定端点覆盖全局 `DefaultLimit`/`DefaultWindow`。两种设置方式：
+
+**特性**（在 `ISharkEndpoint` 类上）：
+
+```csharp
+[SharkRateLimit(limit: 10, windowSeconds: 60)]
+public class CheckoutEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapPost("pay", (PaymentRequest req) => ProcessPayment(req));
+    }
+}
+```
+
+**DSL**（在单个路由上）：
+
+```csharp
+app.MapPost("pay", (PaymentRequest req) => ProcessPayment(req))
+   .SharkRateLimit(10, 60);
+```
+
+按端点策略使用独立的固定窗口计数器，键为 `{clientIp}:{path}`。未显式设置策略的端点回退到全局 `DefaultLimit`/`DefaultWindow`。
+
 `X-RateLimit-Limit` 响应头反映当前动态值，而非基准值。

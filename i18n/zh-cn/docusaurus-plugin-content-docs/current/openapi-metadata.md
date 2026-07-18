@@ -97,6 +97,45 @@ public class InventoryEndpoint : ISharkEndpoint
 }
 ```
 
+## 缓存配置
+
+`[SharkCacheProfile]` 在端点组级别控制响应缓存。它与 ASP.NET Core 的输出缓存中间件集成，可按端点设置缓存时长、vary-by 规则和缓存配置。
+
+完整配置、用法及 OpenAPI 集成请参见 [响应缓存配置](response-cache-profile) 页面。
+
+## 操作与 Schema 转换器
+
+通过 `SharkOption` 注册 OpenAPI 操作和 Schema 转换器，无需直接操作 `OpenApiOptions`：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.AddOpenApiOperationTransformer((operation, context, cancellationToken) =>
+    {
+        operation.Description = "自定义描述";
+        return Task.CompletedTask;
+    });
+
+    opt.AddOpenApiSchemaTransformer((schema, context, cancellationToken) =>
+    {
+        schema.Example = new OpenApiString("示例值");
+        return Task.CompletedTask;
+    });
+});
+```
+
+- `AddOpenApiOperationTransformer(...)` — 通过框架注册 `IOpenApiOperationTransformer`，将 OpenAPI 配置集中在 `AddShark()` 中。
+- `AddOpenApiSchemaTransformer(...)` — 对 `IOpenApiSchemaTransformer` 采用相同模式。
+- `opt.OpenApiExampleFactory` — 按端点或响应类型自定义示例生成的钩子：
+
+```csharp
+opt.OpenApiExampleFactory = (ctx, schema) => new OpenApiObject
+{
+    ["name"] = new OpenApiString("示例"),
+    ["value"] = new OpenApiInteger(42),
+};
+```
+
 ## 优先级说明
 
 | 覆盖方式 | 优先级 |

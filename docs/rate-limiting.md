@@ -206,6 +206,32 @@ opt.ConfigureRateLimiting(o =>
 
 The `X-RateLimit-Limit` response header reflects the current dynamic limit, not the base.
 
+## Per-Endpoint Policies
+
+Per-endpoint rate limits override the global `DefaultLimit`/`DefaultWindow` for specific endpoints. Two ways to set them:
+
+**Attribute** (on the `ISharkEndpoint` class):
+
+```csharp
+[SharkRateLimit(limit: 10, windowSeconds: 60)]
+public class CheckoutEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapPost("pay", (PaymentRequest req) => ProcessPayment(req));
+    }
+}
+```
+
+**DSL** (on individual routes):
+
+```csharp
+app.MapPost("pay", (PaymentRequest req) => ProcessPayment(req))
+   .SharkRateLimit(10, 60);
+```
+
+Per-endpoint policies apply their own fixed-window counters keyed by `{clientIp}:{path}`. Endpoints without an explicit policy fall back to the global `DefaultLimit`/`DefaultWindow`.
+
 ## Coexistence
 
 Both `ConfigureRateLimiter()` and `ConfigureRateLimiting()` can be enabled simultaneously. The ASP.NET Core built-in middleware runs first (via `app.UseRateLimiter()`), followed by the Sharkable distributed middleware. Each operates independently.

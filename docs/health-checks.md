@@ -4,11 +4,10 @@ Sharkable maps a `/healthz` endpoint (configurable via `opt.HealthCheckPath = "/
 
 ## Quick Start
 
+The `/healthz` endpoint is available out of the box — `EnableHealthChecks` defaults to `true`. No configuration is needed:
+
 ```csharp
-builder.Services.AddShark(opt =>
-{
-    opt.EnableHealthChecks = true;
-});
+builder.Services.AddShark();
 ```
 
 `GET /healthz`:
@@ -28,7 +27,6 @@ Register custom health checks via `HealthChecksConfigure`:
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.HealthChecksConfigure = hc =>
     {
         hc.AddCheck("external-api", async () =>
@@ -69,7 +67,6 @@ When JWT is configured, a JWT authority reachability check is automatically regi
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.ConfigureJwt("https://auth.example.com", ["my-api"]);
     // JWT check automatically added
 });
@@ -113,7 +110,6 @@ Control how much diagnostic detail `/healthz` exposes via `HealthCheckDetailLeve
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.HealthCheckDetailLevel = HealthCheckDetailLevel.StatusOnly;
 });
 ```
@@ -164,6 +160,19 @@ When [Graceful Shutdown](graceful-shutdown) is configured, `/healthz` returns 50
 }
 ```
 
+## Disable Health Checks
+
+To disable, set `opt.EnableHealthChecks = false`:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableHealthChecks = false;
+});
+```
+
+This removes both `/healthz` and `/livez`.
+
 ## Liveness Probe
 
 Sharkable maps a `/livez` endpoint alongside `/healthz` that always returns `{"status":"alive"}` with HTTP 200 — regardless of health check state, readiness gate, or graceful shutdown:
@@ -185,7 +194,7 @@ livenessProbe:
   periodSeconds: 10
 ```
 
-The liveness probe is enabled automatically when `EnableHealthChecks` is `true`.
+The liveness probe is enabled automatically when health checks are active (default).
 
 ## Kubernetes Probes
 

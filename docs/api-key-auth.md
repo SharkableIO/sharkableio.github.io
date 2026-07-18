@@ -88,6 +88,44 @@ public IResult? Authorize(HttpContext ctx)
 }
 ```
 
+## Custom API Key Validator
+
+For advanced scenarios (database-backed keys, scoped permissions, tenant association), implement `IApiKeyValidator` instead of the static `ApiKeys` array:
+
+```csharp
+public class DatabaseApiKeyValidator : IApiKeyValidator
+{
+    public async Task<ApiKeyValidationResult> ValidateAsync(
+        string key, HttpContext context, CancellationToken cancellationToken)
+    {
+        // Look up the key in your store
+        var apiKey = await _db.ApiKeys
+            .Include(k => k.Tenant)
+            .FirstOrDefaultAsync(k => k.Key == key, cancellationToken);
+
+        if (apiKey is null)
+            return ApiKeyValidationResult.Fail();
+
+        return ApiKeyValidationResult.Success(new List<Claim>
+        {
+            new("client_id", apiKey.ClientId),
+            new("tenant", apiKey.Tenant.Name),
+        }, rateLimitMultiplier: apiKey.Tier == "premium" ? 5.0 : 1.0);
+    }
+}
+```
+
+Register via DI **before** `AddShark()`:
+
+```csharp
+services.AddSingleton<IApiKeyValidator, DatabaseApiKeyValidator>();
+builder.Services.AddShark();
+```
+
+- `ApiKeyValidationResult` carries a list of `Claim` objects (automatically set as `HttpContext.User.ClaimsPrincipal`) and an optional `RateLimitMultiplier` for per-client rate limit scaling.
+- The default validator uses the static `ApiKeys` array with SHA-256 comparison when no custom implementation is registered.
+- When both `IApiKeyValidator` and static `ApiKeys` are configured, the custom validator takes precedence.
+
 ## Unified Error Response
 
 Auth failures return the framework's standard unified result envelope:

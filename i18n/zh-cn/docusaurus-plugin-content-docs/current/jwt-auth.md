@@ -11,16 +11,19 @@ Sharkable 提供预配置的 JWT Bearer 认证，只需最少配置。
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ConfigureJwt(
-        authority: "https://your-issuer.com",
-        audiences: ["your-api"],
-        configure: jwt =>
+    opt.ConfigureJwt(jwt =>
+    {
+        jwt.Authority = "https://your-issuer.com";
+        jwt.Audiences = ["your-api"];
+        jwt.BearerConfigure = jwtBearer =>
         {
             // 可选的额外 JwtBearerOptions 配置
-        }
-    );
+        };
+    });
 });
 ```
+
+> **迁移说明：** 旧重载 `ConfigureJwt(string authority, string[] audiences, Action<JwtBearerOptions>?)` 已废弃。请使用上述单参数 `ConfigureJwt(Action<JwtOptions>)` 模式。
 
 ## 统一错误响应
 
@@ -35,14 +38,19 @@ builder.Services.AddShark(opt =>
 通过 `configure` 回调钩入 JWT 事件，不会丢失 Sharkable 的统一错误响应：
 
 ```csharp
-opt.ConfigureJwt("https://your-issuer.com", ["your-api"], configure: jwt =>
+opt.ConfigureJwt(jwt =>
 {
-    jwt.Events.OnTokenValidated = ctx =>
+    jwt.Authority = "https://your-issuer.com";
+    jwt.Audiences = ["your-api"];
+    jwt.BearerConfigure = jwtBearer =>
     {
-        var sub = ctx.Principal.FindFirst("sub")?.Value;
-        var roles = ctx.Principal.FindAll("role");
-        // 解析用户信息
-        return Task.CompletedTask;
+        jwtBearer.Events.OnTokenValidated = ctx =>
+        {
+            var sub = ctx.Principal.FindFirst("sub")?.Value;
+            var roles = ctx.Principal.FindAll("role");
+            // 解析用户信息
+            return Task.CompletedTask;
+        };
     };
 });
 ```
@@ -74,7 +82,11 @@ Sharkable 默认注册 ASP.NET Core 的授权服务（`services.AddAuthorization
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ConfigureJwt("https://your-issuer.com", ["your-api"]);
+    opt.ConfigureJwt(jwt =>
+    {
+        jwt.Authority = "https://your-issuer.com";
+        jwt.Audiences = ["your-api"];
+    });
 
     opt.ConfigureAuthorization = o =>
     {

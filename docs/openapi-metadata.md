@@ -85,6 +85,45 @@ OpenAPI tag: `["admin", "management"]`.
 |-----------|------|-------------|
 | `tag` | `string` | The OpenAPI tag value. |
 
+## Cache Profile
+
+`[SharkCacheProfile]` controls response caching at the endpoint group level. It integrates with ASP.NET Core's output caching middleware to set cache duration, vary-by rules, and cache profiles per endpoint.
+
+See the [Response Cache Profile](response-cache-profile) page for full configuration, usage, and OpenAPI integration.
+
+## Operation & Schema Transformers
+
+Register OpenAPI operation and schema transformers through `SharkOption` without touching `OpenApiOptions` directly:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.AddOpenApiOperationTransformer((operation, context, cancellationToken) =>
+    {
+        operation.Description = "Custom description";
+        return Task.CompletedTask;
+    });
+
+    opt.AddOpenApiSchemaTransformer((schema, context, cancellationToken) =>
+    {
+        schema.Example = new OpenApiString("example value");
+        return Task.CompletedTask;
+    });
+});
+```
+
+- `AddOpenApiOperationTransformer(...)` — registers an `IOpenApiOperationTransformer` via the framework, keeping OpenAPI configuration centralized in `AddShark()`.
+- `AddOpenApiSchemaTransformer(...)` — same pattern for `IOpenApiSchemaTransformer`.
+- `opt.OpenApiExampleFactory` — hook for custom example generation per endpoint or response type:
+
+```csharp
+opt.OpenApiExampleFactory = (ctx, schema) => new OpenApiObject
+{
+    ["name"] = new OpenApiString("Example"),
+    ["value"] = new OpenApiInteger(42),
+};
+```
+
 ## Precedence
 
 Per-endpoint overrides (`WithSummary()`, `WithDescription()`, `WithOpenApi()`, `WithOperationId()`) always take precedence over class-level attributes. Multiple class-level attributes compose — for example, `[SharkTag]` and `[SharkResponseType]` can be combined on the same class.

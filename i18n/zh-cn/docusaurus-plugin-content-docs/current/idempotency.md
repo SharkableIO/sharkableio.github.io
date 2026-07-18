@@ -196,6 +196,25 @@ builder.Services.AddShark(opt =>
 | `services.AddSingleton<IIdempotencyStore, T>()` 在 `AddShark` 之前 | 中（插件） |
 | 默认 `MemoryIdempotencyStore` | 最低（兜底） |
 
+## 按端点启用
+
+你可以在不全局设置 `EnableIdempotency = true` 的情况下为单个端点启用幂等。在 `ISharkEndpoint` 类上应用 `[SharkIdempotent]`：
+
+```csharp
+[SharkIdempotent(ttlSeconds: 3600)]
+public class PaymentEndpoint : ISharkEndpoint
+{
+    public void AddRoutes(IEndpointRouteBuilder app)
+    {
+        app.MapPost("charge", (ChargeRequest req) => Charge(req));
+    }
+}
+```
+
+需要调用 `ConfigureIdempotency()`（配置选项时注册中间件），但全局 `EnableIdempotency` 标志可以保持 `false`。只有标记了 `[SharkIdempotent]` 的端点会被拦截。
+
+要排除类上同时有 `[SharkIdempotent]` 的流式/SSE 端点，使用 `[SharkNoIdempotency]` 显式退出。
+
 ## AOT 支持
 
 中间件是 AOT 安全的。无反射、无用户类型上的 `Create()` 工厂调用、无 `dynamic`。`Sharkable.AotSample` 在构建期端到端验证该特性。

@@ -87,6 +87,47 @@ public class UserEndpoint : ISharkEndpoint
 }
 ```
 
+## Error Shape
+
+The `ValidationErrorMode` enum controls how validation errors are formatted in the 400 response:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableValidation = true;
+    opt.ValidationErrorMode = ValidationErrorMode.ProblemDetails;
+});
+```
+
+| Mode | Description |
+|------|-------------|
+| `Messages` (default) | Joins all FluentValidation error messages with `"; "` into the `errorMessage` field |
+| `ProblemDetails` | RFC 7807 `ValidationProblemDetails` with `errors` object keyed by property name |
+
+**Messages example:**
+
+```json
+{
+  "statusCode": 400,
+  "data": null,
+  "errorMessage": "'Name' must not be empty.; 'Email' must not be empty."
+}
+```
+
+**ProblemDetails example:**
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "One or more validation errors occurred.",
+  "status": 400,
+  "errors": {
+    "Name": ["'Name' must not be empty."],
+    "Email": ["'Email' must not be empty."]
+  }
+}
+```
+
 ## AOT example (full)
 
 ```csharp

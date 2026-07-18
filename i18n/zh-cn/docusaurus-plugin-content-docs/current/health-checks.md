@@ -8,11 +8,10 @@ Sharkable 提供 `/healthz` 端点（可通过 `opt.HealthCheckPath = "/health"`
 
 ## 快速开始
 
+`/healthz` 端点开箱即用 — `EnableHealthChecks` 默认为 `true`。无需任何配置：
+
 ```csharp
-builder.Services.AddShark(opt =>
-{
-    opt.EnableHealthChecks = true;
-});
+builder.Services.AddShark();
 ```
 
 `GET /healthz`：
@@ -32,7 +31,6 @@ builder.Services.AddShark(opt =>
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.HealthChecksConfigure = hc =>
     {
         hc.AddCheck("external-api", async () =>
@@ -73,7 +71,6 @@ builder.Services.AddShark(opt =>
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.ConfigureJwt("https://auth.example.com", ["my-api"]);
     // JWT 检查自动添加
 });
@@ -114,7 +111,6 @@ services.TryAddEnumerable(
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.EnableHealthChecks = true;
     opt.HealthCheckDetailLevel = HealthCheckDetailLevel.StatusOnly;
 });
 ```
@@ -151,6 +147,8 @@ builder.Services.AddShark(opt =>
 
 配置 [优雅关闭](graceful-shutdown) 后，关闭期间 `/healthz` 返回 503。
 
+禁用健康检查。
+
 ## 存活探针（Liveness Probe）
 
 Sharkable 在 `/livez` 映射了一个端点，始终返回 `{"status":"alive"}` 与 HTTP 200——无论健康检查状态、就绪门控或优雅关闭如何：
@@ -172,7 +170,20 @@ livenessProbe:
   periodSeconds: 10
 ```
 
-存活探针在 `EnableHealthChecks` 为 `true` 时自动启用。
+存活探针在健康检查启用时（默认）自动开启。
+
+## 禁用健康检查
+
+要禁用，设置 `opt.EnableHealthChecks = false`：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableHealthChecks = false;
+});
+```
+
+这会同时移除 `/healthz` 和 `/livez`。
 
 ## Kubernetes 探针
 

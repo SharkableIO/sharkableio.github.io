@@ -103,6 +103,50 @@ public class CacheWarmup : ICacheWarmup
 
 The service is resolved during startup, before the readiness gate opens and before the server accepts requests. This ensures eagerly-loaded singletons are fully initialized before traffic arrives.
 
+## Group & Endpoint Conventions
+
+Use `GroupConvention` and `EndpointConvention` to apply shared middleware, filters, or metadata across groups or endpoints declaratively:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.GroupConvention = (group, name) =>
+    {
+        group.RequireAuthorization();
+        group.WithOpenApi();
+    };
+
+    opt.EndpointConvention = (group, type) =>
+    {
+        group.WithMetadata(new ProducesResponseTypeMetadata
+        {
+            StatusCode = 200,
+            ContentTypes = ["application/json"]
+        });
+    };
+});
+```
+
+- `GroupConvention` is called once per endpoint group (e.g., `api/users`). Use it for shared authorization, OpenAPI, or middleware applied to the entire group.
+- `EndpointConvention` is called once per endpoint class. Use it for `ProducesResponseType` metadata, common filters, or transformer registration at the class level.
+
+## Parallel Warmup
+
+Multiple `IWarmupService` implementations registered via separate `ConfigureWarmup<T>()` calls run in **parallel** during startup:
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.ConfigureWarmup<DatabaseWarmup>();
+    opt.ConfigureWarmup<CacheWarmup>();
+});
+```
+
+Each warmup service:
+- Runs concurrently with other warmup services
+- Has its own 30-second timeout (adjustable per service)
+- Throwing fails startup — aggregate exceptions are propagated
+
 ## Pipeline Injection Points
 
 Inject custom middleware at specific positions in Sharkable's pipeline using `UseSharkOptions`:

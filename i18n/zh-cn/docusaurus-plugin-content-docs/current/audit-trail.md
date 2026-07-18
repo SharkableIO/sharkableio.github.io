@@ -128,6 +128,36 @@ opt.ConfigureAuditTrail(a =>
 
 选择 `Default` 时，日志输出使用结构化日志的命名占位符（`{Method}`、`{Path}`、`{StatusCode}` 等），便于日志聚合工具处理。其他格式使用单个 `{Message}` 模板。
 
+## 审计接收器（Audit Sink）
+
+`IAuditSink` 接口允许将审计条目发送到外部系统（Seq、Elastic、Kafka 等），而不仅仅依赖 `ILogger` 输出：
+
+```csharp
+opt.AuditSinkFactory = sp => new SeqAuditSink("http://seq-server:5341");
+```
+
+默认使用 `LoggingAuditSink`，保留现有的 `ILogger` 行为。实现 `IAuditSink` 将条目发送到任意目标：
+
+```csharp
+public class SeqAuditSink : IAuditSink
+{
+    private readonly HttpClient _client;
+
+    public SeqAuditSink(string serverUrl)
+    {
+        _client = new HttpClient { BaseAddress = new Uri(serverUrl) };
+    }
+
+    public async Task WriteAsync(AuditLogEntry entry, CancellationToken cancellationToken)
+    {
+        var json = JsonSerializer.Serialize(entry);
+        await _client.PostAsync("/api/events/raw", new StringContent(json), cancellationToken);
+    }
+}
+```
+
+在 `AddShark()` 中设置 `AuditSinkFactory`。工厂接收根 `IServiceProvider`，因此可以解析已注册的服务（如 `HttpClientFactory`、连接字符串）。
+
 ## AOT 兼容
 
 审计日志中间件完全 AOT 兼容。它使用 `ILogger<T>` 进行结构化日志记录，不对请求/响应体进行任何反射操作。

@@ -89,6 +89,44 @@ public IResult? Authorize(HttpContext ctx)
 }
 ```
 
+## 自定义 API 密钥验证器
+
+对于高级场景（数据库支持的密钥、带权限的密钥、租户关联），实现 `IApiKeyValidator` 代替静态 `ApiKeys` 数组：
+
+```csharp
+public class DatabaseApiKeyValidator : IApiKeyValidator
+{
+    public async Task<ApiKeyValidationResult> ValidateAsync(
+        string key, HttpContext context, CancellationToken cancellationToken)
+    {
+        // 在你的存储中查找密钥
+        var apiKey = await _db.ApiKeys
+            .Include(k => k.Tenant)
+            .FirstOrDefaultAsync(k => k.Key == key, cancellationToken);
+
+        if (apiKey is null)
+            return ApiKeyValidationResult.Fail();
+
+        return ApiKeyValidationResult.Success(new List<Claim>
+        {
+            new("client_id", apiKey.ClientId),
+            new("tenant", apiKey.Tenant.Name),
+        }, rateLimitMultiplier: apiKey.Tier == "premium" ? 5.0 : 1.0);
+    }
+}
+```
+
+在 `AddShark()` **之前**通过 DI 注册：
+
+```csharp
+services.AddSingleton<IApiKeyValidator, DatabaseApiKeyValidator>();
+builder.Services.AddShark();
+```
+
+- `ApiKeyValidationResult` 携带 `Claim` 列表（自动设置为 `HttpContext.User.ClaimsPrincipal`）以及可选的 `RateLimitMultiplier`，用于按客户端进行速率限制缩放。
+- 未注册自定义实现时，默认验证器使用静态 `ApiKeys` 数组配合 SHA-256 比对。
+- 同时配置 `IApiKeyValidator` 和静态 `ApiKeys` 时，自定义验证器优先。
+
 ## 统一错误响应
 
 认证失败返回框架标准的统一结果封装。

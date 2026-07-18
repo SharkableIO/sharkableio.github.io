@@ -124,6 +124,36 @@ opt.ConfigureAuditTrail(a =>
 
 When `Default` is selected, the log output uses structured logging with named placeholders (`{Method}`, `{Path}`, `{StatusCode}`, etc.) for full compatibility with log aggregation tools. Other formats use a single `{Message}` template.
 
+## Audit Sink
+
+The `IAuditSink` interface allows shipping audit entries to external systems (Seq, Elastic, Kafka, etc.) instead of relying on `ILogger` output alone:
+
+```csharp
+opt.AuditSinkFactory = sp => new SeqAuditSink("http://seq-server:5341");
+```
+
+The default is `LoggingAuditSink`, which preserves the existing `ILogger`-based behavior. Implement `IAuditSink` to send entries to any target:
+
+```csharp
+public class SeqAuditSink : IAuditSink
+{
+    private readonly HttpClient _client;
+
+    public SeqAuditSink(string serverUrl)
+    {
+        _client = new HttpClient { BaseAddress = new Uri(serverUrl) };
+    }
+
+    public async Task WriteAsync(AuditLogEntry entry, CancellationToken cancellationToken)
+    {
+        var json = JsonSerializer.Serialize(entry);
+        await _client.PostAsync("/api/events/raw", new StringContent(json), cancellationToken);
+    }
+}
+```
+
+Set `AuditSinkFactory` in `AddShark()`. The factory receives the root `IServiceProvider`, so you can resolve registered services (e.g., `HttpClientFactory`, connection strings).
+
 ## AOT Compatibility
 
 The audit trail middleware is fully AOT-compatible. It uses `ILogger<T>` for structured logging with zero reflection on request/response bodies.

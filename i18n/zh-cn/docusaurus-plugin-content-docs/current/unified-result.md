@@ -202,7 +202,7 @@ builder.Services.AddShark(opt =>
 
 此后所有异常处理器和自动包装的响应都会使用 `MyResult` 格式。
 
-> **重要：** 使用自定义响应格式配合 `EnableAutoWrap` 时，OpenAPI 文档转换器仍会按默认的 `UnifiedResult<T>` 结构生成 schema。要让生成的 OpenAPI 文档匹配实际的响应格式，请设置 `WrapSchemaFactory`：
+> **重要：** 使用自定义响应格式配合 `EnableAutoWrap` 时，OpenAPI 文档转换器仍会按默认的 `UnifiedResult<T>` 结构生成 schema。要让生成的 OpenAPI 文档匹配实际的响应格式，请设置 `WrapSchemaFactory`。**如果替换了 `IUnifiedResultFactory` 而未同时设置 `WrapSchemaFactory`，OpenAPI schema 将无法反映自定义响应格式 — 启动时会生成一条警告提醒你这不匹配。**
 
 ```csharp
 builder.Services.AddShark(opt =>

@@ -39,19 +39,19 @@ const sidebars = {
       type: 'category',
       label: 'Security',
       collapsed: true,
-      items: ['api-key-auth', 'jwt-auth', 'authorization-interceptor', 'cors', 'rate-limiting'],
+      items: ['api-key-auth', 'jwt-auth', 'security-headers', 'authorization-interceptor', 'cors', 'rate-limiting'],
     },
     {
       type: 'category',
       label: 'Quality',
       collapsed: true,
-      items: ['route-analyzer', 'distributed-tracing', 'profiler'],
+      items: ['framework-metrics', 'route-analyzer', 'distributed-tracing', 'profiler'],
     },
     {
       type: 'category',
       label: 'Request Pipeline',
       collapsed: true,
-      items: ['request-validation', 'output-caching', 'etag', 'response-compression', 'graceful-shutdown', 'config-validation', 'health-checks'],
+      items: ['request-validation', 'request-timeout', 'output-caching', 'response-cache-profile', 'etag', 'response-compression', 'graceful-shutdown', 'config-validation', 'health-checks'],
     },
     {
       type: 'category',
@@ -63,7 +63,7 @@ const sidebars = {
       type: 'category',
       label: 'Advanced Features',
       collapsed: true,
-      items: ['idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'roadmap'],
+      items: ['plugins', 'testing', 'idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'roadmap'],
     },
   ],
 };

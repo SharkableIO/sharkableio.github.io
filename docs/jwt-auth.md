@@ -7,16 +7,19 @@ Sharkable provides opinionated JWT Bearer authentication with minimal configurat
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ConfigureJwt(
-        authority: "https://your-issuer.com",
-        audiences: ["your-api"],
-        configure: jwt =>
+    opt.ConfigureJwt(jwt =>
+    {
+        jwt.Authority = "https://your-issuer.com";
+        jwt.Audiences = ["your-api"];
+        jwt.BearerConfigure = jwtBearer =>
         {
             // optional additional JwtBearerOptions configuration
-        }
-    );
+        };
+    });
 });
 ```
+
+> **Migration note:** The old overload `ConfigureJwt(string authority, string[] audiences, Action<JwtBearerOptions>?)` is obsolete. Use the single-parameter `ConfigureJwt(Action<JwtOptions>)` pattern shown above.
 
 ## Unified Error Response
 
@@ -41,14 +44,19 @@ At startup, Sharkable validates that both `authority` and `audiences` are proper
 Use the `configure` callback to hook into JWT events without losing Sharkable's unified error responses:
 
 ```csharp
-opt.ConfigureJwt("https://your-issuer.com", ["your-api"], configure: jwt =>
+opt.ConfigureJwt(jwt =>
 {
-    jwt.Events.OnTokenValidated = ctx =>
+    jwt.Authority = "https://your-issuer.com";
+    jwt.Audiences = ["your-api"];
+    jwt.BearerConfigure = jwtBearer =>
     {
-        var sub = ctx.Principal.FindFirst("sub")?.Value;
-        var roles = ctx.Principal.FindAll("role");
-        // Resolve user identity, populate HttpContext.Items, etc.
-        return Task.CompletedTask;
+        jwtBearer.Events.OnTokenValidated = ctx =>
+        {
+            var sub = ctx.Principal.FindFirst("sub")?.Value;
+            var roles = ctx.Principal.FindAll("role");
+            // Resolve user identity, populate HttpContext.Items, etc.
+            return Task.CompletedTask;
+        };
     };
 });
 ```
@@ -80,7 +88,11 @@ Sharkable registers ASP.NET Core's authorization services by default (`services.
 ```csharp
 builder.Services.AddShark(opt =>
 {
-    opt.ConfigureJwt("https://your-issuer.com", ["your-api"]);
+    opt.ConfigureJwt(jwt =>
+    {
+        jwt.Authority = "https://your-issuer.com";
+        jwt.Audiences = ["your-api"];
+    });
 
     opt.ConfigureAuthorization = o =>
     {

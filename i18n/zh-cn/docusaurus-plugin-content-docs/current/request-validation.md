@@ -90,6 +90,47 @@ public class UserEndpoint : ISharkEndpoint
 }
 ```
 
+## 错误格式
+
+`ValidationErrorMode` 枚举控制 400 响应中验证错误的格式：
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableValidation = true;
+    opt.ValidationErrorMode = ValidationErrorMode.ProblemDetails;
+});
+```
+
+| 模式 | 说明 |
+|------|------|
+| `Messages`（默认） | 将 FluentValidation 的所有错误消息以 `"; "` 拼接放入 `errorMessage` 字段 |
+| `ProblemDetails` | RFC 7807 格式的 `ValidationProblemDetails`，包含按属性名索引的 `errors` 对象 |
+
+**Messages 示例：**
+
+```json
+{
+  "statusCode": 400,
+  "data": null,
+  "errorMessage": "名称不能为空; 邮箱不能为空。"
+}
+```
+
+**ProblemDetails 示例：**
+
+```json
+{
+  "type": "https://tools.ietf.org/html/rfc9110#section-15.5.1",
+  "title": "一个或多个验证错误发生。",
+  "status": 400,
+  "errors": {
+    "Name": ["名称不能为空。"],
+    "Email": ["邮箱不能为空。"]
+  }
+}
+```
+
 ## AOT 完整示例
 
 ```csharp
