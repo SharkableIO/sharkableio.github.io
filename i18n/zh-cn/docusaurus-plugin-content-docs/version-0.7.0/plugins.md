@@ -130,6 +130,8 @@ builder.Services.AddShark(opt =>
 
 ## 示例：Redis 缓存插件
 
+`Sharkable.Cache.Redis` 包内置了 `RedisCachePlugin`——启动时自动发现。只需引用包：
+
 ```csharp
 namespace Sharkable.Cache.Redis;
 

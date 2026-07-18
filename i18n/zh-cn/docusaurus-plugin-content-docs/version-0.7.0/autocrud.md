@@ -33,6 +33,8 @@ Sharkable.AutoCrud 基于 [SqlSugar](https://github.com/DotNetNext/SqlSugar) —
 dotnet add package Sharkable.AutoCrud.SqlSugar
 ```
 
+该包实现了 `ISharkPlugin`，启动时**自动发现**——无需手动注册。只需引用包并配置数据库连接。
+
 ### 2. 配置数据库
 
 ```csharp
