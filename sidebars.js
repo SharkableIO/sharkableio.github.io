@@ -63,7 +63,7 @@ const sidebars = {
       type: 'category',
       label: 'Advanced Features',
       collapsed: true,
-      items: ['plugins', 'testing', 'idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'server-sent-events', 'roadmap'],
+      items: ['plugins', 'testing', 'idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'cron-jobs', 'server-sent-events', 'roadmap'],
     },
   ],
 };
