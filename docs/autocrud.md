@@ -338,6 +338,63 @@ For every `IAutoCrudEntity<T>` that uses `Create` or `Update`:
 
 Full audit context: [SHARK-SEC-006 in the security disclosure](./security.md).
 
+## Multi-Tenant Row Isolation
+
+When you run a SaaS-style deployment, AutoCrud can isolate every tenant's rows automatically — queries are filtered by the current tenant and writes are tagged with it. **Opt-in only**: disabled by default, and disabling it again restores byte-identical baseline behavior.
+
+### 1. Enable the filter
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableAutoCrudTenantFilter = true;   // opt-in
+    opt.AutoCrudTenantColumn = "TenantId";   // default; override if your column differs
+
+    opt.ConfigureMultiTenant(cfg =>
+    {
+        cfg.ResolveTenant = ctx => ctx.Request.Headers["X-Tenant-Id"].ToString();
+    });
+});
+```
+
+### 2. Add the tenant column to your entity
+
+```csharp
+[SugarTable("orders")]
+public class Order
+{
+    [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+    public int Id { get; set; }
+
+    [CrudAllow]
+    public string Name { get; set; } = "";
+
+    // Tenant column — NOT [CrudAllow]: the generator excludes it from
+    // client-controlled writes. Nullable so inserts work when the
+    // filter is disabled.
+    [SugarColumn(IsNullable = true)]
+    public string? TenantId { get; set; }
+}
+```
+
+### What the filter does
+
+| Operation | Behavior with the filter enabled |
+|---|---|
+| List / All / GetById | `WHERE TenantId = @tenantId` added; cross-tenant ids → 404 |
+| Create | Tenant column force-filled server-side; a client-supplied value can never win |
+| Update | Ownership pre-read (cross-tenant → 404); tenant column excluded from writable columns |
+| Delete | `AND TenantId = @tenantId` on soft and hard deletes — cross-tenant deletes affect 0 rows |
+| Any request without a resolved tenant | **400** — fail closed, no unscoped queries |
+
+The tenant column name is validated as a SQL identifier at endpoint generation time (invalid names throw at startup), and all tenant values are passed as SQL parameters.
+
+### Notes
+
+- The tenant column must exist in the table when the filter is enabled.
+- Empty/whitespace tenant resolutions are treated as "no tenant" by the framework.
+- The feature works with any `ITenant` resolution strategy (header, claim, host, JWT — see [Multi-Tenant](./multi-tenant.md)).
+
 ## Architecture
 
 - **Sharkable core** provides `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator` + `FilterOperator`

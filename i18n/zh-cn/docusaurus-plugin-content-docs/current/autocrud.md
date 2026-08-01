@@ -270,6 +270,62 @@ dotnet publish -c Release -r linux-x64 --self-contained
 
 依赖 Sharkable ≥ 0.4.1 的任意 `Sharkable.AutoCrud.SqlSugar` 版本均可使用。
 
+## 多租户行隔离
+
+SaaS 式部署场景下，AutoCrud 可自动隔离各租户的数据行——查询按当前租户过滤，写入自动打上租户标签。**仅限主动开启**：默认关闭；关闭时行为与基线完全一致。
+
+### 1. 启用过滤
+
+```csharp
+builder.Services.AddShark(opt =>
+{
+    opt.EnableAutoCrudTenantFilter = true;   // opt-in
+    opt.AutoCrudTenantColumn = "TenantId";   // 默认值；列名不同时覆盖
+
+    opt.ConfigureMultiTenant(cfg =>
+    {
+        cfg.ResolveTenant = ctx => ctx.Request.Headers["X-Tenant-Id"].ToString();
+    });
+});
+```
+
+### 2. 给实体加租户列
+
+```csharp
+[SugarTable("orders")]
+public class Order
+{
+    [SugarColumn(IsPrimaryKey = true, IsIdentity = true)]
+    public int Id { get; set; }
+
+    [CrudAllow]
+    public string Name { get; set; } = "";
+
+    // 租户列——不加 [CrudAllow]：生成器会把它排除在客户端可写列之外。
+    // 设为可空，保证过滤关闭时插入也能成功。
+    [SugarColumn(IsNullable = true)]
+    public string? TenantId { get; set; }
+}
+```
+
+### 过滤行为一览
+
+| 操作 | 启用过滤后的行为 |
+|---|---|
+| 列表 / 全部 / 按 ID 查 | 自动加 `WHERE TenantId = @tenantId`；跨租户 ID → 404 |
+| 创建 | 租户列由服务端强制填充；客户端提供的值永远无效 |
+| 更新 | 归属预读（跨租户 → 404）；租户列排除在可写列之外 |
+| 删除 | 软删/硬删均带 `AND TenantId = @tenantId`——跨租户删除影响 0 行 |
+| 任何未解析到租户的请求 | **400** —— 失败关闭，绝不无租户查询 |
+
+租户列名在端点生成时按 SQL 标识符校验（非法名称启动即抛错），所有租户值均以 SQL 参数传递。
+
+### 说明
+
+- 启用过滤时，表中必须存在租户列。
+- 空/纯空白租户解析结果会被框架视为"无租户"。
+- 该功能适用于任意 `ITenant` 解析策略（请求头、声明、域名、JWT——见[多租户](./multi-tenant.md)）。
+
 ## 架构
 
 - **Sharkable 核心**提供 `IAutoCrudEntity<T>` + `CrudOperations` + `IAutoCrudGenerator` + `FilterOperator`

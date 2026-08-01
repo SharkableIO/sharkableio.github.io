@@ -9,7 +9,7 @@ const sidebars = {
       label: 'Getting Started',
       collapsed: false,
       link: { type: 'generated-index' },
-      items: ['quickstart'],
+      items: ['quickstart', 'templates'],
     },
     {
       type: 'category',
@@ -63,7 +63,7 @@ const sidebars = {
       type: 'category',
       label: 'Advanced Features',
       collapsed: true,
-      items: ['plugins', 'testing', 'idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'roadmap'],
+      items: ['plugins', 'testing', 'idempotency', 'multi-tenant', 'autocrud', 'distributed-transactions', 'server-sent-events', 'roadmap'],
     },
   ],
 };
