@@ -1,0 +1,42 @@
+{
+  "version.label": {
+    "message": "0.7.6",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.Getting Started": {
+    "message": "入门指南",
+    "description": "The label for category 'Getting Started' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Lifecycle": {
+    "message": "生命周期",
+    "description": "The label for category 'Lifecycle' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.OpenAPI": {
+    "message": "OpenAPI",
+    "description": "The label for category 'OpenAPI' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Error Handling": {
+    "message": "错误处理",
+    "description": "The label for category 'Error Handling' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Quality": {
+    "message": "质量保障",
+    "description": "The label for category 'Quality' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Security": {
+    "message": "安全",
+    "description": "The label for category 'Security' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Request Pipeline": {
+    "message": "请求管道",
+    "description": "The label for category 'Request Pipeline' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Logging & Auditing": {
+    "message": "日志与审计",
+    "description": "The label for category 'Logging & Auditing' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.Advanced Features": {
+    "message": "高级功能",
+    "description": "The label for category 'Advanced Features' in sidebar 'docs'"
+  }
+}
